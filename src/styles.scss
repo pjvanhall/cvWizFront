@@ -1,0 +1,53 @@
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f6f6f6;
+  --ink: #1a1a1a;
+  --muted: #606060;
+  --line: #d8d8d8;
+  --line-strong: #111111;
+  --wizard-blue: #1655ff;
+  --highlight: #f0ff4a;
+  --accent: #1655ff;
+  --accent-strong: #0e3fc4;
+  --accent-soft: #eaf0ff;
+  --gold: #f4b860;
+  --coral: #d95d39;
+  --danger: #bd2f32;
+  --shadow: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe Print", "Comic Sans MS", "Bradley Hand ITC", "Trebuchet MS", sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
