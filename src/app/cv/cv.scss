@@ -1,0 +1,61 @@
+.cv-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.lookup-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.code-font {
+  font-family: monospace;
+}
+
+.subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  
+  h3 {
+    margin: 0;
+  }
+}
+
+.experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.experience-card {
+  background: rgba(0,0,0,0.02);
+}
+
+.compact {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}

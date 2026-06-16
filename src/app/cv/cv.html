@@ -1,0 +1,108 @@
+<div class="cv-container">
+  @if (isBusy) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar>description</mat-icon>
+      <mat-card-title>Curriculum Vitae</mat-card-title>
+      <mat-card-subtitle>{{ cvForm.controls.bestandsNaam.value || 'Standalone CV' }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="lookup-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>CV ID</mat-label>
+          <input matInput type="number" [(ngModel)]="cvLookupId" [disabled]="isBusy">
+        </mat-form-field>
+        <button mat-stroked-button color="primary" (click)="loadCvById()" [disabled]="isBusy">
+          <mat-icon>search</mat-icon> Load
+        </button>
+      </div>
+
+      <form [formGroup]="cvForm">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>ID</mat-label>
+            <input matInput type="number" formControlName="id" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Bestandsnaam</mat-label>
+            <input matInput formControlName="bestandsNaam">
+            @if (cvForm.controls.bestandsNaam.hasError('required')) {
+              <mat-error>Bestandsnaam is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Matrix ID</mat-label>
+            <input matInput type="number" formControlName="matrixId">
+          </mat-form-field>
+        </div>
+
+        <div class="two-column">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Profiel</mat-label>
+            <textarea matInput formControlName="profiel" rows="6"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Opleiding</mat-label>
+            <textarea matInput formControlName="opleiding" rows="6"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="two-column">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Competenties (One per line)</mat-label>
+            <textarea matInput formControlName="competentiesText" rows="6"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Matrix JSON</mat-label>
+            <textarea matInput class="code-font" formControlName="matrixJson" rows="6"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="subhead">
+          <h3>Ervaring</h3>
+          <button mat-stroked-button color="primary" (click)="addExperience()">
+            <mat-icon>add</mat-icon> Add Experience
+          </button>
+        </div>
+
+        <div formArrayName="ervaring" class="experience-list">
+          @for (group of ervaringen.controls; track $index; let index = $index) {
+            <mat-card class="experience-card" [formGroupName]="index">
+              <mat-card-header>
+                <mat-card-title>Experience {{ index + 1 }}</mat-card-title>
+                <span class="spacer"></span>
+                <button mat-icon-button color="warn" (click)="removeExperience(index)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-grid compact">
+                  <mat-form-field appearance="outline"><mat-label>Id</mat-label><input matInput type="number" formControlName="id"></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Bedrijf</mat-label><input matInput formControlName="bedrijf"></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Periode</mat-label><input matInput formControlName="periode"></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Functie</mat-label><input matInput formControlName="functie"></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Sector</mat-label><input matInput formControlName="sector"></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Kennis</mat-label><input matInput formControlName="kennis"></mat-form-field>
+                </div>
+                <div class="two-column">
+                  <mat-form-field appearance="outline" class="full-width"><mat-label>Situatie</mat-label><textarea matInput formControlName="situatie" rows="3"></textarea></mat-form-field>
+                  <mat-form-field appearance="outline" class="full-width"><mat-label>Taak</mat-label><textarea matInput formControlName="taak" rows="3"></textarea></mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="saveCurrentCv()" [disabled]="isBusy">Save CV</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

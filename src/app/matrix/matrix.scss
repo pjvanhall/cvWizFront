@@ -1,0 +1,62 @@
+.matrix-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.lookup-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.matrix-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.matrix-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.matrix-table-wrap {
+  margin-top: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.muted {
+  color: rgba(0,0,0,0.5);
+  font-style: italic;
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 24px !important;
+  color: rgba(0,0,0,0.5);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: rgba(0,0,0,0.5);
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+}

@@ -1,0 +1,29 @@
+.beheerder-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.lookup-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-card {
+  margin-top: 16px;
+}
