@@ -1,29 +1,27 @@
 .medewerker-container {
-  max-width: 800px;
-  margin: 0 auto;
+  padding: 24px;
 }
 
-.lookup-row {
+mat-card-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.full-width {
-  width: 100%;
+  margin-bottom: 16px;
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
-mat-card {
-  margin-top: 16px;
+.consultant-table {
+  width: 100%;
+}
+
+.no-data {
+  text-align: center;
+  padding: 32px;
+  color: #757575;
+}
+
+th.mat-header-cell {
+  font-weight: bold;
 }

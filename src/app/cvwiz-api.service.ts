@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BeheerderDto, CurriculumVitaeDto, MedewerkerDto, TechniekMatrixDto } from './cvwiz.models';
+import { BeheerderDto, CurriculumVitaeDto, MedewerkerDto, MedewerkerListDto, TechniekMatrixDto } from './cvwiz.models';
 
 @Injectable({ providedIn: 'root' })
 export class CvwizApiService {
@@ -15,8 +15,16 @@ export class CvwizApiService {
     });
   }
 
+  getAllMedewerkers(): Observable<MedewerkerListDto[]> {
+    return this.http.get<MedewerkerListDto[]>(`${this.baseUrl}/medewerkers/alle`);
+  }
+
   updateMedewerker(dto: MedewerkerDto): Observable<MedewerkerDto> {
     return this.http.post<MedewerkerDto>(`${this.baseUrl}/medewerkers/updateMedewerker`, dto);
+  }
+
+  completeOneTimeCv(cv: CurriculumVitaeDto): Observable<MedewerkerDto> {
+    return this.http.post<MedewerkerDto>(`${this.baseUrl}/medewerkers/curriculumVitae/eersteLogin`, cv);
   }
 
   createMedewerker(dto: MedewerkerDto): Observable<MedewerkerDto> {

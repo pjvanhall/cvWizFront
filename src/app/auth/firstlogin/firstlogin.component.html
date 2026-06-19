@@ -1,0 +1,128 @@
+<div class="firstlogin-wrapper">
+  <mat-card class="firstlogin-card">
+    <mat-card-header>
+      <mat-card-title>Welcome to CV Wizard</mat-card-title>
+      <mat-card-subtitle>Let's set up your Curriculum Vitae</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-progress-bar *ngIf="isBusy" mode="indeterminate" class="loading-bar"></mat-progress-bar>
+      
+      <mat-stepper orientation="vertical" [linear]="true" #stepper>
+        
+        <!-- Step 1: Basic Info -->
+        <mat-step [stepControl]="basicForm">
+          <form [formGroup]="basicForm">
+            <ng-template matStepLabel>Basic Profile Info</ng-template>
+            
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>File Name (Bestandsnaam)</mat-label>
+                <input matInput formControlName="bestandsNaam" required placeholder="e.g. John_Doe_CV.pdf">
+                <mat-error *ngIf="basicForm.controls.bestandsNaam.hasError('required')">File name is required</mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Education (Opleiding)</mat-label>
+                <input matInput formControlName="opleiding">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Profile Summary</mat-label>
+                <textarea matInput formControlName="profiel" rows="4"></textarea>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Competencies (comma separated)</mat-label>
+                <textarea matInput formControlName="competentiesText" rows="3"></textarea>
+              </mat-form-field>
+            </div>
+            
+            <div class="step-actions">
+              <button mat-button matStepperNext color="primary">Next</button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 2: Experience -->
+        <mat-step [stepControl]="experienceForm">
+          <form [formGroup]="experienceForm">
+            <ng-template matStepLabel>Work Experience</ng-template>
+            
+            <div formArrayName="ervaring">
+              <div *ngFor="let exp of ervaringen.controls; let i=index" [formGroupName]="i" class="experience-block">
+                <div class="exp-header">
+                  <h4>Experience #{{i + 1}}</h4>
+                  <button mat-icon-button color="warn" type="button" (click)="removeExperience(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Company (Bedrijf)</mat-label>
+                    <input matInput formControlName="bedrijf">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Period</mat-label>
+                    <input matInput formControlName="periode">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Role (Functie)</mat-label>
+                    <input matInput formControlName="functie">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Sector</mat-label>
+                    <input matInput formControlName="sector">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Knowledge/Tools (Kennis)</mat-label>
+                    <input matInput formControlName="kennis">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Situation/Project (Situatie)</mat-label>
+                    <textarea matInput formControlName="situatie" rows="2"></textarea>
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Tasks (Taak)</mat-label>
+                    <textarea matInput formControlName="taak" rows="2"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            
+            <div class="add-btn-container">
+              <button mat-stroked-button type="button" (click)="addExperience()">
+                <mat-icon>add</mat-icon> Add Experience
+              </button>
+            </div>
+            
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Back</button>
+              <button mat-button matStepperNext color="primary">Next</button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 3: Finish -->
+        <mat-step>
+          <ng-template matStepLabel>Finish</ng-template>
+          <div class="finish-step">
+            <p>You have completed the initial setup. Click submit to save your CV and proceed to the dashboard.</p>
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Back</button>
+              <button mat-flat-button color="primary" [disabled]="isBusy" (click)="submitCv()">Submit CV</button>
+            </div>
+          </div>
+        </mat-step>
+        
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>

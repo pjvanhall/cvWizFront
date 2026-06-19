@@ -1,183 +1,85 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CvwizApiService } from '../cvwiz-api.service';
-import { MedewerkerDto } from '../cvwiz.models';
+import { MedewerkerDto, MedewerkerListDto } from '../cvwiz.models';
+import { MedewerkerDetailDialogComponent } from './medewerker-detail-dialog/medewerker-detail-dialog.component';
 
 @Component({
   selector: 'app-medewerker',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
+    MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatDialogModule
   ],
   templateUrl: './medewerker.html',
   styleUrl: './medewerker.scss',
 })
-export class Medewerker {
-  private readonly fb = inject(FormBuilder);
+export class Medewerker implements OnInit {
   private readonly api = inject(CvwizApiService);
+  private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   isBusy = false;
-  medewerkerLookupId = '';
-  selectedMedewerker: MedewerkerDto | null = null;
+  consultants = new MatTableDataSource<MedewerkerListDto>([]);
+  displayedColumns: string[] = ['voornaam', 'achternaam', 'emailAdres', 'telefoon', 'actions'];
 
-  readonly medewerkerForm = this.fb.nonNullable.group({
-    id: [''],
-    voornaam: ['', Validators.required],
-    achternaam: ['', Validators.required],
-    telefoon: [''],
-    emailAdres: ['', [Validators.required, Validators.email]]
-  });
+  ngOnInit(): void {
+    this.loadConsultants();
+  }
 
-  loadMedewerker(): void {
-    const id = this.medewerkerLookupId.trim();
-    if (!id) {
-      this.showMessage('Enter a Medewerker ID');
-      return;
-    }
-
+  loadConsultants(): void {
     this.isBusy = true;
-    this.api.getMedewerker(id).subscribe({
-      next: (medewerker) => {
-        this.applyMedewerker(medewerker);
-        this.showMessage(`Loaded ${medewerker.voornaam} ${medewerker.achternaam}`);
+    this.api.getAllMedewerkers().subscribe({
+      next: (data) => {
+        console.log('Received consultants:', data);
+        this.consultants.data = data;
         this.isBusy = false;
       },
       error: (err) => {
-        this.showMessage('Failed to load Medewerker');
+        console.error('Error fetching consultants:', err);
+        this.snackBar.open('Failed to load consultants', 'Close', { duration: 3000 });
         this.isBusy = false;
       }
     });
   }
 
-  createMedewerker(): void {
-    if (this.medewerkerForm.invalid) {
-      this.medewerkerForm.markAllAsTouched();
-      return;
-    }
+  openAddDialog(): void {
+    const dialogRef = this.dialog.open(MedewerkerDetailDialogComponent, {
+      width: '500px',
+      data: null
+    });
 
-    this.isBusy = true;
-    const dto = this.buildDto(false);
-    
-    this.api.createMedewerker(dto).subscribe({
-      next: (medewerker) => {
-        this.applyMedewerker(medewerker);
-        this.medewerkerLookupId = medewerker.id ?? '';
-        this.showMessage('Medewerker created successfully');
-        this.isBusy = false;
-      },
-      error: (err) => {
-        this.showMessage('Failed to create Medewerker');
-        this.isBusy = false;
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadConsultants();
       }
     });
   }
 
-  updateMedewerker(): void {
-    if (this.medewerkerForm.invalid) {
-      this.medewerkerForm.markAllAsTouched();
-      return;
-    }
+  openEditDialog(consultant: MedewerkerListDto): void {
+    const dialogRef = this.dialog.open(MedewerkerDetailDialogComponent, {
+      width: '500px',
+      data: consultant
+    });
 
-    const dto = this.buildDto(true);
-    if (!dto.id) {
-      this.showMessage('Load or create a medewerker first');
-      return;
-    }
-
-    this.isBusy = true;
-    this.api.updateMedewerker(dto).subscribe({
-      next: (medewerker) => {
-        this.applyMedewerker(medewerker);
-        this.showMessage('Medewerker updated successfully');
-        this.isBusy = false;
-      },
-      error: (err) => {
-        this.showMessage('Failed to update Medewerker');
-        this.isBusy = false;
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadConsultants();
       }
     });
-  }
-
-  deleteMedewerker(): void {
-    const voornaam = this.medewerkerForm.controls.voornaam.value.trim();
-    const achternaam = this.medewerkerForm.controls.achternaam.value.trim();
-
-    if (!voornaam || !achternaam) {
-      this.showMessage('First name and last name required for deletion');
-      return;
-    }
-
-    this.isBusy = true;
-    this.api.deleteMedewerker(voornaam, achternaam).subscribe({
-      next: () => {
-        this.selectedMedewerker = null;
-        this.medewerkerForm.reset();
-        this.showMessage('Medewerker deleted successfully');
-        this.isBusy = false;
-      },
-      error: (err) => {
-        this.showMessage('Failed to delete Medewerker');
-        this.isBusy = false;
-      }
-    });
-  }
-
-  private applyMedewerker(medewerker: MedewerkerDto): void {
-    this.selectedMedewerker = medewerker;
-    this.medewerkerForm.patchValue({
-      id: medewerker.id ?? '',
-      voornaam: medewerker.voornaam ?? '',
-      achternaam: medewerker.achternaam ?? '',
-      telefoon: medewerker.telefoon ?? '',
-      emailAdres: medewerker.emailAdres ?? ''
-    });
-  }
-
-  private buildDto(includeId: boolean): MedewerkerDto {
-    const values = this.medewerkerForm.getRawValue();
-    return {
-      id: includeId ? values.id.trim() || null : null,
-      voornaam: values.voornaam.trim(),
-      achternaam: values.achternaam.trim(),
-      telefoon: values.telefoon.trim(),
-      emailAdres: values.emailAdres.trim(),
-      orgineleCv: this.selectedMedewerker?.orgineleCv ?? this.createEmptyCv(),
-      cvLijst: this.selectedMedewerker?.cvLijst ?? []
-    };
-  }
-
-  private createEmptyCv() {
-    return {
-      id: null,
-      bestandsNaam: '',
-      competenties: [],
-      profiel: '',
-      opleiding: '',
-      matrix: { id: null, matrix: {} },
-      ervaring: []
-    };
-  }
-
-  private showMessage(msg: string) {
-    this.snackBar.open(msg, 'Close', { duration: 3000 });
   }
 }

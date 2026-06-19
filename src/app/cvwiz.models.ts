@@ -26,6 +26,14 @@ export interface CurriculumVitaeDto {
   ervaring: ErvaringDto[];
 }
 
+export interface MedewerkerListDto {
+  id: string | null;
+  voornaam: string;
+  achternaam: string;
+  telefoon: string;
+  emailAdres: string;
+}
+
 export interface MedewerkerDto {
   id: string | null;
   voornaam: string;

@@ -1,34 +1,47 @@
-<mat-sidenav-container class="app-sidenav-container">
-  <mat-sidenav mode="side" opened class="app-sidenav">
-    <mat-toolbar color="primary" class="brand-toolbar">
-      <span>CV Wizard</span>
-    </mat-toolbar>
-    <mat-nav-list>
-      <a mat-list-item routerLink="/medewerkers" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>people</mat-icon>
-        <span matListItemTitle>Medewerkers</span>
-      </a>
-      <a mat-list-item routerLink="/cv" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>description</mat-icon>
-        <span matListItemTitle>Curriculum Vitae</span>
-      </a>
-      <a mat-list-item routerLink="/beheerders" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-        <span matListItemTitle>Beheerders</span>
-      </a>
-      <a mat-list-item routerLink="/matrix" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>grid_on</mat-icon>
-        <span matListItemTitle>Techniek Matrix</span>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
+<ng-container *ngIf="isAuthenticated$ | async; else unauthenticated">
+  <mat-sidenav-container class="app-sidenav-container">
+    <mat-sidenav mode="side" opened class="app-sidenav">
+      <mat-toolbar color="primary" class="brand-toolbar">
+        <span>CV Wizard</span>
+      </mat-toolbar>
+      <mat-nav-list>
+        <a mat-list-item routerLink="/medewerkers" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>people</mat-icon>
+          <span matListItemTitle>Consultants</span>
+        </a>
+        <a mat-list-item routerLink="/cv" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>description</mat-icon>
+          <span matListItemTitle>Curriculum Vitae</span>
+        </a>
+        <a mat-list-item routerLink="/beheerders" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+          <span matListItemTitle>Beheerders</span>
+        </a>
+        <a mat-list-item routerLink="/matrix" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>grid_on</mat-icon>
+          <span matListItemTitle>Techniek Matrix</span>
+        </a>
+      </mat-nav-list>
+      <div class="logout-container">
+        <button mat-button color="warn" (click)="logout()">
+          <mat-icon>logout</mat-icon> Logout
+        </button>
+      </div>
+    </mat-sidenav>
 
-  <mat-sidenav-content>
-    <mat-toolbar color="primary" class="header-toolbar">
-      <span>Consultant CV Workspace</span>
-    </mat-toolbar>
-    <main class="content-padding">
-      <router-outlet></router-outlet>
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    <mat-sidenav-content>
+      <mat-toolbar color="primary" class="header-toolbar">
+        <span>Consultant CV Workspace</span>
+      </mat-toolbar>
+      <main class="content-padding">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-container>
+
+<ng-template #unauthenticated>
+  <main class="unauthenticated-container">
+    <router-outlet></router-outlet>
+  </main>
+</ng-template>
