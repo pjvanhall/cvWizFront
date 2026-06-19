@@ -12,12 +12,19 @@ The application employs a feature-based modular structure. The main `AppComponen
 
 * **App Shell Layout**: Defined in `AppComponent`, this uses an Angular Material Sidenav (`<mat-sidenav-container>`) and Toolbar to establish persistent navigation.
 * **Feature Components:**
-  * `MedewerkerComponent` (`/medewerkers`): Handles creating, loading, updating, and deleting consultant/employee data.
+  * `MedewerkerComponent` (`/medewerkers`): Implements a Master-Detail pattern using an Angular Material Data Grid (`MatTable`) to display all consultants. Employs `MedewerkerDetailDialogComponent` for adding or editing consultant records via modal dialogs.
   * `CvComponent` (`/cv`): Manages the complex Curriculum Vitae structures, including profiles, arrays of experiences, and attached skill matrices.
   * `BeheerderComponent` (`/beheerders`): Manages the system administrators or manager records.
   * `MatrixComponent` (`/matrix`): Interfaces with the dynamic categorizations of tools, programming languages, and proficiency levels.
 
-### 2. State Management
+### 2. Authentication & Security
+The application uses JWT-based authentication to secure routes and API requests.
+* **AuthService**: Manages the authentication state (`BehaviorSubject`), token storage (`localStorage`), and login/logout logic.
+* **AuthGuard**: Protects routes (like `/medewerkers`, `/cv`) by redirecting unauthenticated users to the `/login` screen.
+* **AuthInterceptor**: Automatically intercepts outgoing HTTP requests and injects the JWT token into the `Authorization: Bearer` header.
+* **Login Flows**: The app distinguishes between a standard login (`LoginComponent`) and a first-time login (`FirstloginComponent`). The first-time login features a multi-step `MatStepper` wizard guiding the user to complete their initial CV configuration.
+
+### 3. State Management
 State is managed locally within each individual feature component to prevent namespace collision and crossover bugs. 
 * **Reactive Forms:** The application relies heavily on Angular's `ReactiveFormsModule` (`FormBuilder`, `FormGroup`, `FormArray`). Every feature component maintains its own isolated form logic.
 * **Component State:** Tracking variables (e.g., `isBusy` for loading spinners, `cvLookupId`, `selectedMedewerker`) reside in the class instance of the active component. State is localized to the active route.
