@@ -48,6 +48,9 @@
             <button mat-icon-button color="primary" (click)="openEditDialog(element)" title="Edit Consultant">
               <mat-icon>edit</mat-icon>
             </button>
+            <button mat-icon-button [color]="element.hasCv ? 'accent' : 'primary'" (click)="editCv(element)" [title]="element.hasCv ? 'Edit CV & Matrix' : 'Add CV & Matrix'" [disabled]="isBusy">
+              <mat-icon>{{ element.hasCv ? 'edit_document' : 'note_add' }}</mat-icon>
+            </button>
           </td>
         </ng-container>
 

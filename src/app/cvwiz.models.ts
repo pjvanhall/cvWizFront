@@ -32,6 +32,7 @@ export interface MedewerkerListDto {
   achternaam: string;
   telefoon: string;
   emailAdres: string;
+  hasCv?: boolean;
 }
 
 export interface MedewerkerDto {

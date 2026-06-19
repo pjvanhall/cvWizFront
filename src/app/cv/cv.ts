@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { CvwizApiService } from '../cvwiz-api.service';
 import { CurriculumVitaeDto, ErvaringDto, SkillMatrix } from '../cvwiz.models';
@@ -34,9 +35,12 @@ export class Cv {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(CvwizApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   isBusy = false;
   cvLookupId: number | null = null;
+  medewerkerId: string | null = null;
   loadedCv: CurriculumVitaeDto | null = null;
 
   readonly cvForm = this.fb.group({
@@ -52,6 +56,18 @@ export class Cv {
 
   get ervaringen(): FormArray {
     return this.cvForm.get('ervaring') as FormArray;
+  }
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['medewerkerId']) {
+        this.medewerkerId = params['medewerkerId'];
+        this.showMessage('Creating a new CV for consultant.');
+      } else if (params['id']) {
+        this.cvLookupId = Number(params['id']);
+        this.loadCvById();
+      }
+    });
   }
 
   loadCvById(): void {
@@ -91,6 +107,32 @@ export class Cv {
     }
 
     if (cv.id === null) {
+      if (this.medewerkerId) {
+        this.isBusy = true;
+        this.api.getMedewerker(this.medewerkerId).subscribe({
+          next: (medewerker) => {
+            medewerker.orgineleCv = cv;
+            this.api.updateMedewerker(medewerker).subscribe({
+              next: (updated) => {
+                this.loadedCv = updated.orgineleCv;
+                this.patchCvForm(this.loadedCv);
+                this.showMessage(`Created new CV for consultant.`);
+                this.router.navigate(['/cv'], { queryParams: { id: this.loadedCv.id } });
+                this.isBusy = false;
+              },
+              error: () => {
+                this.showMessage('Failed to save consultant CV.');
+                this.isBusy = false;
+              }
+            });
+          },
+          error: () => {
+            this.showMessage('Failed to load consultant details.');
+            this.isBusy = false;
+          }
+        });
+        return;
+      }
       this.showMessage('A standalone CV needs an id before update in this view.');
       return;
     }

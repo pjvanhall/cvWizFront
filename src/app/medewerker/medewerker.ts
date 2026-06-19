@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 import { CvwizApiService } from '../cvwiz-api.service';
 import { MedewerkerDto, MedewerkerListDto } from '../cvwiz.models';
@@ -32,6 +33,7 @@ export class Medewerker implements OnInit {
   private readonly api = inject(CvwizApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   isBusy = false;
   consultants = new MatTableDataSource<MedewerkerListDto>([]);
@@ -79,6 +81,24 @@ export class Medewerker implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadConsultants();
+      }
+    });
+  }
+
+  editCv(consultant: MedewerkerListDto): void {
+    this.isBusy = true;
+    this.api.getMedewerker(consultant.id!).subscribe({
+      next: (fullData) => {
+        this.isBusy = false;
+        if (fullData.orgineleCv?.id) {
+          this.router.navigate(['/cv'], { queryParams: { id: fullData.orgineleCv.id } });
+        } else {
+          this.router.navigate(['/cv'], { queryParams: { medewerkerId: fullData.id } });
+        }
+      },
+      error: () => {
+        this.isBusy = false;
+        this.snackBar.open('Failed to fetch consultant details.', 'Close', { duration: 3000 });
       }
     });
   }
