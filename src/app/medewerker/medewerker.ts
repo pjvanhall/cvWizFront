@@ -103,4 +103,24 @@ export class Medewerker implements OnInit {
       }
     });
   }
+
+  deleteConsultant(consultant: MedewerkerListDto): void {
+    const warning = consultant.hasCv 
+      ? `\n\nWARNING: This consultant has a CV coupled. Deleting this consultant will also permanently delete their CV and skill matrix!`
+      : '';
+      
+    if (confirm(`Are you sure you want to delete consultant ${consultant.voornaam} ${consultant.achternaam}?${warning}`)) {
+      this.isBusy = true;
+      this.api.deleteMedewerker(consultant.voornaam, consultant.achternaam).subscribe({
+        next: () => {
+          this.snackBar.open('Consultant deleted successfully', 'Close', { duration: 3000 });
+          this.loadConsultants();
+        },
+        error: () => {
+          this.snackBar.open('Failed to delete Consultant', 'Close', { duration: 3000 });
+          this.isBusy = false;
+        }
+      });
+    }
+  }
 }

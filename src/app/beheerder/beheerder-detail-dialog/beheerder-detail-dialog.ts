@@ -8,10 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CvwizApiService } from '../../cvwiz-api.service';
-import { MedewerkerDto } from '../../cvwiz.models';
+import { BeheerderDto } from '../../cvwiz.models';
 
 @Component({
-  selector: 'app-medewerker-detail-dialog',
+  selector: 'app-beheerder-detail-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -23,19 +23,19 @@ import { MedewerkerDto } from '../../cvwiz.models';
     MatIconModule
   ],
   template: `
-    <h2 mat-dialog-title>{{ data?.id ? 'Edit Consultant' : 'Add Consultant' }}</h2>
+    <h2 mat-dialog-title>{{ data?.id ? 'Edit Manager' : 'Add Manager' }}</h2>
     <mat-dialog-content>
-      <form [formGroup]="medewerkerForm" class="form-grid">
+      <form [formGroup]="beheerderForm" class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Voornaam</mat-label>
           <input matInput formControlName="voornaam">
-          <mat-error *ngIf="medewerkerForm.controls.voornaam.hasError('required')">Voornaam is required</mat-error>
+          <mat-error *ngIf="beheerderForm.controls.voornaam.hasError('required')">Voornaam is required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Achternaam</mat-label>
           <input matInput formControlName="achternaam">
-          <mat-error *ngIf="medewerkerForm.controls.achternaam.hasError('required')">Achternaam is required</mat-error>
+          <mat-error *ngIf="beheerderForm.controls.achternaam.hasError('required')">Achternaam is required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -46,8 +46,8 @@ import { MedewerkerDto } from '../../cvwiz.models';
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email</mat-label>
           <input matInput formControlName="emailAdres" type="email">
-          <mat-error *ngIf="medewerkerForm.controls.emailAdres.hasError('required')">Email is required</mat-error>
-          <mat-error *ngIf="medewerkerForm.controls.emailAdres.hasError('email')">Must be a valid email</mat-error>
+          <mat-error *ngIf="beheerderForm.controls.emailAdres.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="beheerderForm.controls.emailAdres.hasError('email')">Must be a valid email</mat-error>
         </mat-form-field>
       </form>
     </mat-dialog-content>
@@ -71,14 +71,14 @@ import { MedewerkerDto } from '../../cvwiz.models';
     }
   `]
 })
-export class MedewerkerDetailDialogComponent {
+export class BeheerderDetailDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(CvwizApiService);
   private readonly snackBar = inject(MatSnackBar);
 
   isBusy = false;
 
-  readonly medewerkerForm = this.fb.nonNullable.group({
+  readonly beheerderForm = this.fb.nonNullable.group({
     id: [''],
     voornaam: ['', Validators.required],
     achternaam: ['', Validators.required],
@@ -87,11 +87,11 @@ export class MedewerkerDetailDialogComponent {
   });
 
   constructor(
-    public dialogRef: MatDialogRef<MedewerkerDetailDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: MedewerkerDto | null
+    public dialogRef: MatDialogRef<BeheerderDetailDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: BeheerderDto | null
   ) {
     if (data) {
-      this.medewerkerForm.patchValue({
+      this.beheerderForm.patchValue({
         id: data.id ?? '',
         voornaam: data.voornaam ?? '',
         achternaam: data.achternaam ?? '',
@@ -106,55 +106,53 @@ export class MedewerkerDetailDialogComponent {
   }
 
   onSave(): void {
-    if (this.medewerkerForm.invalid) {
-      this.medewerkerForm.markAllAsTouched();
+    if (this.beheerderForm.invalid) {
+      this.beheerderForm.markAllAsTouched();
       return;
     }
 
     this.isBusy = true;
-    const dto: MedewerkerDto = {
-      id: this.medewerkerForm.controls.id.value || null,
-      voornaam: this.medewerkerForm.controls.voornaam.value.trim(),
-      achternaam: this.medewerkerForm.controls.achternaam.value.trim(),
-      telefoon: this.medewerkerForm.controls.telefoon.value.trim(),
-      emailAdres: this.medewerkerForm.controls.emailAdres.value.trim(),
-      orgineleCv: this.data?.orgineleCv ?? (null as any),
-      cvLijst: this.data?.cvLijst ?? []
+    const dto: BeheerderDto = {
+      id: this.beheerderForm.controls.id.value || null,
+      voornaam: this.beheerderForm.controls.voornaam.value.trim(),
+      achternaam: this.beheerderForm.controls.achternaam.value.trim(),
+      telefoon: this.beheerderForm.controls.telefoon.value.trim(),
+      emailAdres: this.beheerderForm.controls.emailAdres.value.trim()
     };
 
-    const request$ = dto.id ? this.api.updateMedewerker(dto) : this.api.createMedewerker(dto);
+    const request$ = dto.id ? this.api.updateBeheerder(dto) : this.api.createBeheerder(dto);
 
     request$.subscribe({
       next: (result) => {
-        this.snackBar.open(`Consultant ${dto.id ? 'updated' : 'created'} successfully`, 'Close', { duration: 3000 });
+        this.snackBar.open(`Manager ${dto.id ? 'updated' : 'created'} successfully`, 'Close', { duration: 3000 });
         this.dialogRef.close(result);
       },
       error: () => {
-        this.snackBar.open(`Failed to ${dto.id ? 'update' : 'create'} Consultant`, 'Close', { duration: 3000 });
+        this.snackBar.open(`Failed to ${dto.id ? 'update' : 'create'} Manager`, 'Close', { duration: 3000 });
         this.isBusy = false;
       }
     });
   }
 
   onDelete(): void {
-    if (!this.data) return;
+    if (!this.data?.id) return;
     
-    const warning = this.data.orgineleCv 
-      ? `\n\nWARNING: This consultant has a CV coupled. Deleting this consultant will also permanently delete their CV and skill matrix!`
+    const warning = this.data.hasCv 
+      ? `\n\nWARNING: This manager is also a consultant with a coupled CV. Deleting this manager may affect their associated consultant login.`
       : '';
       
-    if (!confirm(`Are you sure you want to delete consultant ${this.data.voornaam} ${this.data.achternaam}?${warning}`)) {
+    if (!confirm(`Are you sure you want to delete manager ${this.data.voornaam} ${this.data.achternaam}?${warning}`)) {
       return;
     }
     
     this.isBusy = true;
-    this.api.deleteMedewerker(this.data.voornaam ?? '', this.data.achternaam ?? '').subscribe({
+    this.api.deleteBeheerder(this.data.id).subscribe({
       next: () => {
-        this.snackBar.open('Consultant deleted successfully', 'Close', { duration: 3000 });
+        this.snackBar.open('Manager deleted successfully', 'Close', { duration: 3000 });
         this.dialogRef.close('deleted');
       },
       error: () => {
-        this.snackBar.open('Failed to delete Consultant', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to delete Manager', 'Close', { duration: 3000 });
         this.isBusy = false;
       }
     });

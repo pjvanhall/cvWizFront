@@ -51,4 +51,5 @@ export interface BeheerderDto {
   achternaam: string;
   telefoon: string;
   emailAdres: string;
+  hasCv?: boolean;
 }

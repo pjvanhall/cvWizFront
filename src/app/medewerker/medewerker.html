@@ -51,6 +51,9 @@
             <button mat-icon-button [color]="element.hasCv ? 'accent' : 'primary'" (click)="editCv(element)" [title]="element.hasCv ? 'Edit CV & Matrix' : 'Add CV & Matrix'" [disabled]="isBusy">
               <mat-icon>{{ element.hasCv ? 'edit_document' : 'note_add' }}</mat-icon>
             </button>
+            <button mat-icon-button color="warn" (click)="deleteConsultant(element)" title="Delete Consultant" [disabled]="isBusy">
+              <mat-icon>delete</mat-icon>
+            </button>
           </td>
         </ng-container>
 

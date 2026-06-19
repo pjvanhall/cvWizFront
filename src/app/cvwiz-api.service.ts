@@ -43,6 +43,10 @@ export class CvwizApiService {
     });
   }
 
+  getAllBeheerders(): Observable<BeheerderDto[]> {
+    return this.http.get<BeheerderDto[]>(`${this.baseUrl}/beheerders/alleBeheerders`);
+  }
+
   createBeheerder(dto: BeheerderDto): Observable<BeheerderDto> {
     return this.http.post<BeheerderDto>(`${this.baseUrl}/beheerders/nieuw`, dto);
   }
