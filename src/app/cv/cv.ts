@@ -91,6 +91,10 @@ export class Cv {
     });
   }
 
+  goBack(): void {
+    this.router.navigate(['/medewerkers']);
+  }
+
   saveCurrentCv(): void {
     if (this.cvForm.invalid) {
       this.cvForm.markAllAsTouched();
@@ -154,10 +158,12 @@ export class Cv {
 
   addExperience(): void {
     this.ervaringen.push(this.createExperienceGroup());
+    this.cvForm.markAsDirty();
   }
 
   removeExperience(index: number): void {
     this.ervaringen.removeAt(index);
+    this.cvForm.markAsDirty();
   }
 
   private buildCvDto(): CurriculumVitaeDto {
@@ -206,6 +212,7 @@ export class Cv {
     for (const ervaring of cv.ervaring ?? []) {
       this.ervaringen.push(this.createExperienceGroup(ervaring));
     }
+    this.cvForm.markAsPristine();
   }
 
   private createExperienceGroup(ervaring?: Partial<ErvaringDto>) {

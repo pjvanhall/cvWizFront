@@ -8,6 +8,10 @@
       <mat-icon mat-card-avatar>description</mat-icon>
       <mat-card-title>Curriculum Vitae</mat-card-title>
       <mat-card-subtitle>{{ cvForm.controls.bestandsNaam.value || 'Standalone CV' }}</mat-card-subtitle>
+      <span class="spacer"></span>
+      <button mat-stroked-button (click)="goBack()" [disabled]="isBusy">
+        <mat-icon>arrow_back</mat-icon> Back to Consultants
+      </button>
     </mat-card-header>
 
     <mat-card-content>
@@ -102,7 +106,7 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="saveCurrentCv()" [disabled]="isBusy">Save CV</button>
+      <button mat-raised-button color="primary" (click)="saveCurrentCv()" [disabled]="isBusy || !cvForm.dirty">Save CV</button>
     </mat-card-actions>
   </mat-card>
 </div>
