@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>Matrix Detail (ID: {{data?.id}})</h2>
+<mat-dialog-content>
+  <div class="matrix-table-wrap mat-elevation-z2">
+    @if (data) {
+      <table mat-table [dataSource]="flattenedMatrixData" class="full-width">
+
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef> Category </th>
+          <td mat-cell *matCellDef="let row"> {{row.category}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="techniek">
+          <th mat-header-cell *matHeaderCellDef> Techniek </th>
+          <td mat-cell *matCellDef="let row">
+            <span [class.muted]="row.techniek === 'No technieken'">{{row.techniek}}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="level">
+          <th mat-header-cell *matHeaderCellDef> Level </th>
+          <td mat-cell *matCellDef="let row"> {{row.level}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell empty-cell" colspan="3">No matrix rows.</td>
+        </tr>
+      </table>
+    } @else {
+      <p>No data</p>
+    }
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,10 +8,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 import { CvwizApiService } from '../cvwiz-api.service';
-import { SkillMatrix, TechniekMatrixDto } from '../cvwiz.models';
+
+export interface MatrixRow {
+  isCategory: boolean;
+  category: string;
+  technique: string;
+}
 
 @Component({
   selector: 'app-matrix',
@@ -31,94 +36,143 @@ import { SkillMatrix, TechniekMatrixDto } from '../cvwiz.models';
   templateUrl: './matrix.html',
   styleUrl: './matrix.scss',
 })
-export class Matrix {
+export class Matrix implements OnInit {
   private readonly api = inject(CvwizApiService);
   private readonly snackBar = inject(MatSnackBar);
 
   isBusy = false;
-  matrixLookupId: number | null = null;
-  matrixCategory = '';
-  matrixTechnique = '';
-  loadedMatrix: TechniekMatrixDto | null = null;
 
-  displayedColumns: string[] = ['category', 'techniek', 'level'];
+  matrixData = new MatTableDataSource<MatrixRow>([]);
+  displayedColumns: string[] = ['category', 'technique', 'actions'];
 
-  get flattenedMatrixData() {
-    if (!this.loadedMatrix || !this.loadedMatrix.matrix) return [];
-    const data: { category: string; techniek: string; level: number | string }[] = [];
-    
-    const categories = Object.entries(this.loadedMatrix.matrix);
-    if (categories.length === 0) return data;
-
-    for (const [name, tools] of categories) {
-      const toolEntries = Object.entries(tools ?? {});
-      if (toolEntries.length === 0) {
-        data.push({ category: name, techniek: 'No technieken', level: '-' });
-      } else {
-        for (const [toolName, level] of toolEntries) {
-          data.push({ category: name, techniek: toolName, level });
-        }
-      }
-    }
-    return data;
+  ngOnInit(): void {
+    this.loadBaseMatrix();
   }
 
-  loadMatrix(): void {
-    if (this.matrixLookupId === null) {
-      this.showMessage('Enter a matrix id.');
-      return;
-    }
-
+  loadBaseMatrix(): void {
     this.isBusy = true;
-    this.api.getTechniekMatrix(this.matrixLookupId).subscribe({
-      next: (matrix) => {
-        this.loadedMatrix = matrix;
-        this.showMessage(`Loaded matrix ${matrix.id}.`);
+    this.api.getTechniekMatrix(1).subscribe({
+      next: (data) => {
+        const rows: MatrixRow[] = [];
+        if (data.matrix) {
+          for (const category of Object.keys(data.matrix).sort()) {
+            rows.push({ isCategory: true, category, technique: '' });
+            const tools = data.matrix[category];
+            if (tools) {
+              for (const technique of Object.keys(tools).sort()) {
+                rows.push({ isCategory: false, category, technique });
+              }
+            }
+          }
+        }
+        this.matrixData.data = rows;
         this.isBusy = false;
       },
       error: () => {
-        this.showMessage('Failed to load Matrix');
+        this.showMessage('Failed to load base matrix');
         this.isBusy = false;
       }
     });
   }
 
-  addMatrixCategory(): void {
-    this.mutateMatrix('category');
-  }
-
-  addMatrixTechnique(): void {
-    this.mutateMatrix('technique');
-  }
-
-  private mutateMatrix(kind: 'category' | 'technique'): void {
-    const category = this.matrixCategory.trim();
-    const technique = this.matrixTechnique.trim();
-
-    if (!category || !technique) {
-      this.showMessage('Category and technique are required.');
-      return;
-    }
-
-    this.isBusy = true;
-    const request = kind === 'category'
-      ? this.api.addCategory(category, technique)
-      : this.api.addTechnique(category, technique);
-
-    request.subscribe({
-      next: (message) => {
-        this.showMessage(message || 'Matrix updated.');
-        if (this.matrixLookupId !== null) {
-          this.loadMatrix();
-        } else {
+  addNewCategory(): void {
+    const newCategory = prompt('Enter new category name:');
+    if (newCategory && newCategory.trim()) {
+      this.isBusy = true;
+      this.api.addEmptyCategory(newCategory.trim()).subscribe({
+        next: (msg) => {
+          this.showMessage(msg || 'Category added');
+          this.loadBaseMatrix();
+        },
+        error: () => {
+          this.showMessage('Failed to add category');
           this.isBusy = false;
         }
-      },
-      error: () => {
-        this.showMessage('Failed to update Matrix');
-        this.isBusy = false;
+      });
+    }
+  }
+
+  editRow(row: MatrixRow): void {
+    if (row.isCategory) {
+      const newName = prompt(`Enter new name for category '${row.category}':`, row.category);
+      if (newName && newName.trim() && newName.trim() !== row.category) {
+        this.isBusy = true;
+        this.api.editCategory(row.category, newName.trim()).subscribe({
+          next: (msg) => {
+            this.showMessage(msg || 'Category updated');
+            this.loadBaseMatrix();
+          },
+          error: () => {
+            this.showMessage('Failed to update category');
+            this.isBusy = false;
+          }
+        });
       }
-    });
+    } else {
+      const newName = prompt(`Enter new name for technique '${row.technique}':`, row.technique);
+      if (newName && newName.trim() && newName.trim() !== row.technique) {
+        this.isBusy = true;
+        this.api.editTechnique(row.category, row.technique, newName.trim()).subscribe({
+          next: (msg) => {
+            this.showMessage(msg || 'Technique updated');
+            this.loadBaseMatrix();
+          },
+          error: () => {
+            this.showMessage('Failed to update technique');
+            this.isBusy = false;
+          }
+        });
+      }
+    }
+  }
+
+  deleteRow(row: MatrixRow): void {
+    if (row.isCategory) {
+      if (confirm(`Are you sure you want to permanently delete the entire category '${row.category}' and all its techniques from ALL consultants?`)) {
+        this.isBusy = true;
+        this.api.deleteCategory(row.category).subscribe({
+          next: (msg) => {
+            this.showMessage(msg || 'Category deleted');
+            this.loadBaseMatrix();
+          },
+          error: () => {
+            this.showMessage('Failed to delete category');
+            this.isBusy = false;
+          }
+        });
+      }
+    } else {
+      if (confirm(`Are you sure you want to permanently delete the technique '${row.technique}' from ALL consultants?`)) {
+        this.isBusy = true;
+        this.api.deleteTechnique(row.category, row.technique).subscribe({
+          next: (msg) => {
+            this.showMessage(msg || 'Technique deleted');
+            this.loadBaseMatrix();
+          },
+          error: () => {
+            this.showMessage('Failed to delete technique');
+            this.isBusy = false;
+          }
+        });
+      }
+    }
+  }
+
+  addTechniqueToCategory(row: MatrixRow): void {
+    const newTechnique = prompt(`Enter new technique name for category '${row.category}':`);
+    if (newTechnique && newTechnique.trim()) {
+      this.isBusy = true;
+      this.api.addTechnique(row.category, newTechnique.trim()).subscribe({
+        next: (msg) => {
+          this.showMessage(msg || 'Technique added');
+          this.loadBaseMatrix();
+        },
+        error: () => {
+          this.showMessage('Failed to add technique');
+          this.isBusy = false;
+        }
+      });
+    }
   }
 
   private showMessage(msg: string) {

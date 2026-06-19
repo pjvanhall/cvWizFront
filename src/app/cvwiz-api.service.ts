@@ -89,6 +89,10 @@ export class CvwizApiService {
     });
   }
 
+  getAllMatrices(): Observable<TechniekMatrixDto[]> {
+    return this.http.get<TechniekMatrixDto[]>(`${this.baseUrl}/beheerders/matrices`);
+  }
+
   addCategory(category: string, techniek: string): Observable<string> {
     return this.http.post(`${this.baseUrl}/beheerders/nieweCategory`, null, {
       params: new HttpParams().set('category', category).set('techniek', techniek),
@@ -96,8 +100,43 @@ export class CvwizApiService {
     });
   }
 
+  addEmptyCategory(category: string): Observable<string> {
+    return this.http.post(`${this.baseUrl}/beheerders/nieuweLegeCategory`, null, {
+      params: new HttpParams().set('category', category),
+      responseType: 'text'
+    });
+  }
+
   addTechnique(category: string, techniek: string): Observable<string> {
     return this.http.post(`${this.baseUrl}/beheerders/nieuweTechniek`, null, {
+      params: new HttpParams().set('category', category).set('techniek', techniek),
+      responseType: 'text'
+    });
+  }
+
+  editCategory(oldCategory: string, newCategory: string): Observable<string> {
+    return this.http.post(`${this.baseUrl}/beheerders/bewerkCategory`, null, {
+      params: new HttpParams().set('oldCategory', oldCategory).set('newCategory', newCategory),
+      responseType: 'text'
+    });
+  }
+
+  editTechnique(category: string, oldTechniek: string, newTechniek: string): Observable<string> {
+    return this.http.post(`${this.baseUrl}/beheerders/bewerkTechniek`, null, {
+      params: new HttpParams().set('category', category).set('oldTechniek', oldTechniek).set('newTechniek', newTechniek),
+      responseType: 'text'
+    });
+  }
+
+  deleteCategory(category: string): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/beheerders/verwijderCategory`, {
+      params: new HttpParams().set('category', category),
+      responseType: 'text'
+    });
+  }
+
+  deleteTechnique(category: string, techniek: string): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/beheerders/verwijderTechniek`, {
       params: new HttpParams().set('category', category).set('techniek', techniek),
       responseType: 'text'
     });

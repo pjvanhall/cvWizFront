@@ -1,0 +1,21 @@
+.matrix-table-wrap {
+  max-height: 400px;
+  overflow: auto;
+  margin-top: 16px;
+  border-radius: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.muted {
+  color: #757575;
+  font-style: italic;
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 24px;
+  color: #757575;
+}
