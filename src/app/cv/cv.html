@@ -15,36 +15,7 @@
     </mat-card-header>
 
     <mat-card-content>
-      <div class="lookup-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>CV ID</mat-label>
-          <input matInput type="number" [(ngModel)]="cvLookupId" [disabled]="isBusy">
-        </mat-form-field>
-        <button mat-stroked-button color="primary" (click)="loadCvById()" [disabled]="isBusy">
-          <mat-icon>search</mat-icon> Load
-        </button>
-      </div>
-
       <form [formGroup]="cvForm">
-        <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>ID</mat-label>
-            <input matInput type="number" formControlName="id" readonly>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Bestandsnaam</mat-label>
-            <input matInput formControlName="bestandsNaam">
-            @if (cvForm.controls.bestandsNaam.hasError('required')) {
-              <mat-error>Bestandsnaam is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Matrix ID</mat-label>
-            <input matInput type="number" formControlName="matrixId">
-          </mat-form-field>
-        </div>
 
         <div class="two-column">
           <mat-form-field appearance="outline" class="full-width">

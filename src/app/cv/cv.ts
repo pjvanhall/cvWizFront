@@ -45,7 +45,7 @@ export class Cv {
 
   readonly cvForm = this.fb.group({
     id: this.fb.control<number | null>(null),
-    bestandsNaam: ['', Validators.required],
+    bestandsNaam: [''],
     profiel: [''],
     opleiding: [''],
     competentiesText: [''],
@@ -185,7 +185,7 @@ export class Cv {
 
     return {
       id: value.id ?? null,
-      bestandsNaam: value.bestandsNaam?.trim() ?? '',
+      bestandsNaam: value.bestandsNaam?.trim() || 'CV',
       competenties: this.toList(value.competentiesText ?? ''),
       profiel: value.profiel?.trim() ?? '',
       opleiding: value.opleiding?.trim() ?? '',
