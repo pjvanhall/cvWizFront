@@ -7,7 +7,7 @@
     <mat-card-header>
       <mat-icon mat-card-avatar>description</mat-icon>
       <mat-card-title>Curriculum Vitae</mat-card-title>
-      <mat-card-subtitle>{{ cvForm.controls.bestandsNaam.value || 'Standalone CV' }}</mat-card-subtitle>
+      <mat-card-subtitle>{{ consultantName || 'Standalone CV' }}</mat-card-subtitle>
       <span class="spacer"></span>
       <button mat-stroked-button (click)="goBack()" [disabled]="isBusy">
         <mat-icon>arrow_back</mat-icon> Back to Consultants

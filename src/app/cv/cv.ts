@@ -41,6 +41,7 @@ export class Cv {
   isBusy = false;
   cvLookupId: number | null = null;
   medewerkerId: string | null = null;
+  consultantName: string | null = null;
   loadedCv: CurriculumVitaeDto | null = null;
 
   readonly cvForm = this.fb.group({
@@ -60,6 +61,9 @@ export class Cv {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
+      if (params['name']) {
+        this.consultantName = params['name'];
+      }
       if (params['medewerkerId']) {
         this.medewerkerId = params['medewerkerId'];
         this.showMessage('Creating a new CV for consultant.');

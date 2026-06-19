@@ -90,10 +90,11 @@ export class Medewerker implements OnInit {
     this.api.getMedewerker(consultant.id!).subscribe({
       next: (fullData) => {
         this.isBusy = false;
+        const name = `${consultant.voornaam} ${consultant.achternaam}`;
         if (fullData.orgineleCv?.id) {
-          this.router.navigate(['/cv'], { queryParams: { id: fullData.orgineleCv.id } });
+          this.router.navigate(['/cv'], { queryParams: { id: fullData.orgineleCv.id, name } });
         } else {
-          this.router.navigate(['/cv'], { queryParams: { medewerkerId: fullData.id } });
+          this.router.navigate(['/cv'], { queryParams: { medewerkerId: fullData.id, name } });
         }
       },
       error: () => {
