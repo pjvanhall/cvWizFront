@@ -73,10 +73,13 @@ export class Cv {
               this.loadedCv = medewerker.orgineleCv;
               this.patchCvForm(this.loadedCv);
               this.showMessage(`Loaded own CV.`);
+              this.isBusy = false;
             } else {
-              this.showMessage(`No CV found for this account.`);
+              this.showMessage(`Creating a new CV for this account...`);
+              this.loadedCv = this.createDefaultCv(medewerker);
+              this.patchCvForm(this.loadedCv);
+              this.saveCurrentCv();
             }
-            this.isBusy = false;
           },
           error: () => {
             this.showMessage('Failed to load your profile.');
@@ -89,7 +92,26 @@ export class Cv {
         }
         if (params['medewerkerId']) {
           this.medewerkerId = params['medewerkerId'];
-          this.showMessage('Creating a new CV for consultant.');
+          this.isBusy = true;
+          this.api.getMedewerker(this.medewerkerId).subscribe({
+            next: (medewerker) => {
+              if (medewerker.orgineleCv) {
+                 this.loadedCv = medewerker.orgineleCv;
+                 this.patchCvForm(this.loadedCv);
+                 this.showMessage(`Loaded CV for consultant.`);
+                 this.isBusy = false;
+              } else {
+                 this.showMessage('Creating a new CV for consultant.');
+                 this.loadedCv = this.createDefaultCv(medewerker);
+                 this.patchCvForm(this.loadedCv);
+                 this.saveCurrentCv();
+              }
+            },
+            error: () => {
+              this.showMessage('Failed to load consultant details.');
+              this.isBusy = false;
+            }
+          });
         } else if (params['id']) {
           this.cvLookupId = Number(params['id']);
           this.loadCvById();
@@ -203,6 +225,20 @@ export class Cv {
         this.isBusy = false;
       }
     });
+  }
+
+  private createDefaultCv(medewerker: MedewerkerDto): CurriculumVitaeDto {
+    return {
+      id: null,
+      bestandsNaam: `CV ${medewerker.voornaam} ${medewerker.achternaam}`.trim(),
+      profiel: '',
+      opleiding: '',
+      competenties: [],
+      matrix: { id: null, matrix: {} },
+      ervaring: [
+        { id: null, bedrijf: '', periode: '', functie: '', sector: '', kennis: '', situatie: '', taak: '' }
+      ]
+    };
   }
 
   addExperience(): void {
