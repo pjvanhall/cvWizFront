@@ -234,10 +234,9 @@ export class Cv {
       profiel: '',
       opleiding: '',
       competenties: [],
+      languages: {},
       matrix: { id: null, matrix: {} },
-      ervaring: [
-        { id: null, bedrijf: '', periode: '', functie: '', sector: '', kennis: '', situatie: '', taak: '' }
-      ]
+      ervaring: []
     };
   }
 

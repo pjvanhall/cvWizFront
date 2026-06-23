@@ -24,6 +24,7 @@ export interface CurriculumVitaeDto {
   opleiding: string;
   matrix: TechniekMatrixDto;
   ervaring: ErvaringDto[];
+  languages?: Record<string, string>;
 }
 
 export interface MedewerkerListDto {
