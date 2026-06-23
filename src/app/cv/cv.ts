@@ -307,6 +307,14 @@ export class Cv {
     return allTechs.filter(tech => !usedTechs.includes(tech));
   }
 
+  canAddCategory(): boolean {
+    return this.getAvailableCategoriesForSelect('').length > 0;
+  }
+
+  canAddTechnology(categoryIndex: number): boolean {
+    return this.getAvailableTechnologiesForSelect(categoryIndex, '').length > 0;
+  }
+
   addMatrixSkill(categoryIndex: number): void {
     this.getMatrixSkills(categoryIndex).push(this.fb.group({
       name: ['', Validators.required],

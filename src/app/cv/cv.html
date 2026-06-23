@@ -37,7 +37,7 @@
 
         <div class="subhead">
           <h3>Skill Matrix</h3>
-          <button mat-stroked-button color="primary" type="button" (click)="addMatrixCategory()">
+          <button mat-stroked-button color="primary" type="button" (click)="addMatrixCategory()" [disabled]="!canAddCategory()">
             <mat-icon>add</mat-icon> Add Category
           </button>
         </div>
@@ -85,7 +85,7 @@
                     </div>
                   }
                 </div>
-                <button mat-button color="primary" type="button" (click)="addMatrixSkill(catIndex)">
+                <button mat-button color="primary" type="button" (click)="addMatrixSkill(catIndex)" [disabled]="!canAddTechnology(catIndex)">
                   <mat-icon>add</mat-icon> Add Technology
                 </button>
               </mat-expansion-panel>
