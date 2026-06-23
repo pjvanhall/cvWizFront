@@ -53,12 +53,20 @@ export class Cv {
     opleiding: [''],
     competentiesText: [''],
     matrixId: this.fb.control<number | null>(null),
-    matrixJson: ['{}', Validators.required],
+    matrixCategories: this.fb.array([]),
     ervaring: this.fb.array([])
   });
 
   get ervaringen(): FormArray {
     return this.cvForm.get('ervaring') as FormArray;
+  }
+
+  get matrixCategories(): FormArray {
+    return this.cvForm.get('matrixCategories') as FormArray;
+  }
+
+  getMatrixSkills(categoryIndex: number): FormArray {
+    return this.matrixCategories.at(categoryIndex).get('skills') as FormArray;
   }
 
   ngOnInit(): void {
@@ -250,9 +258,47 @@ export class Cv {
     this.cvForm.markAsDirty();
   }
 
+  addMatrixCategory(): void {
+    this.matrixCategories.push(this.fb.group({
+      categoryName: ['', Validators.required],
+      skills: this.fb.array([])
+    }));
+    this.cvForm.markAsDirty();
+  }
+
+  removeMatrixCategory(index: number): void {
+    this.matrixCategories.removeAt(index);
+    this.cvForm.markAsDirty();
+  }
+
+  addMatrixSkill(categoryIndex: number): void {
+    this.getMatrixSkills(categoryIndex).push(this.fb.group({
+      name: ['', Validators.required],
+      rating: [0, [Validators.required, Validators.min(0), Validators.max(5)]]
+    }));
+    this.cvForm.markAsDirty();
+  }
+
+  removeMatrixSkill(categoryIndex: number, skillIndex: number): void {
+    this.getMatrixSkills(categoryIndex).removeAt(skillIndex);
+    this.cvForm.markAsDirty();
+  }
+
   private buildCvDto(): CurriculumVitaeDto {
     const value = this.cvForm.getRawValue();
-    const matrix = this.parseMatrix(value.matrixJson ?? '{}');
+    const matrix: SkillMatrix = {};
+    for (const cat of (value.matrixCategories as any[]) || []) {
+      const categoryName = cat.categoryName?.trim();
+      if (!categoryName) continue;
+      
+      const skillsObj: Record<string, number> = {};
+      for (const skill of cat.skills || []) {
+        const skillName = skill.name?.trim();
+        if (!skillName) continue;
+        skillsObj[skillName] = Number(skill.rating) || 0;
+      }
+      matrix[categoryName] = skillsObj;
+    }
     const ervaringen: ErvaringDto[] = this.ervaringen.controls.map((control) => {
       const ervaring = control.getRawValue() as ErvaringDto;
       return {
@@ -289,9 +335,25 @@ export class Cv {
       profiel: cv.profiel ?? '',
       opleiding: cv.opleiding ?? '',
       competentiesText: (cv.competenties ?? []).join('\n'),
-      matrixId: cv.matrix?.id ?? null,
-      matrixJson: JSON.stringify(cv.matrix?.matrix ?? {}, null, 2)
+      matrixId: cv.matrix?.id ?? null
     });
+
+    this.matrixCategories.clear();
+    const matrixObj = cv.matrix?.matrix || {};
+    for (const categoryName of Object.keys(matrixObj)) {
+      const skillsArray = new FormArray<any>([]);
+      const skillsObj = matrixObj[categoryName] || {};
+      for (const skillName of Object.keys(skillsObj)) {
+        skillsArray.push(this.fb.group({
+          name: [skillName, Validators.required],
+          rating: [skillsObj[skillName], [Validators.required, Validators.min(0), Validators.max(5)]]
+        }));
+      }
+      this.matrixCategories.push(this.fb.group({
+        categoryName: [categoryName, Validators.required],
+        skills: skillsArray
+      }));
+    }
 
     this.ervaringen.clear();
     for (const ervaring of cv.ervaring ?? []) {
@@ -313,17 +375,7 @@ export class Cv {
     });
   }
 
-  private parseMatrix(value: string): SkillMatrix {
-    try {
-      const parsed = JSON.parse(value || '{}');
-      if (parsed === null || Array.isArray(parsed) || typeof parsed !== 'object') {
-        throw new Error('Matrix JSON must be an object.');
-      }
-      return parsed;
-    } catch {
-      throw new Error('Matrix JSON is invalid.');
-    }
-  }
+
 
   private toList(value: string): string[] {
     return value

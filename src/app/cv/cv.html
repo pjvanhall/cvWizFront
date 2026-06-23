@@ -29,14 +29,57 @@
         </div>
 
         <div class="two-column">
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="full-width" style="grid-column: span 2;">
             <mat-label>Competenties (One per line)</mat-label>
             <textarea matInput formControlName="competentiesText" rows="6"></textarea>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Matrix JSON</mat-label>
-            <textarea matInput class="code-font" formControlName="matrixJson" rows="6"></textarea>
-          </mat-form-field>
+        </div>
+
+        <div class="subhead">
+          <h3>Skill Matrix</h3>
+          <button mat-stroked-button color="primary" type="button" (click)="addMatrixCategory()">
+            <mat-icon>add</mat-icon> Add Category
+          </button>
+        </div>
+
+        <div formArrayName="matrixCategories" class="matrix-list" style="margin-bottom: 24px;">
+          @for (catCtrl of matrixCategories.controls; track $index; let catIndex = $index) {
+            <mat-card class="matrix-category-card" [formGroupName]="catIndex" style="margin-bottom: 16px;">
+              <mat-card-header style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <mat-form-field appearance="outline" style="flex: 1; margin-right: 16px; margin-top: 16px;">
+                  <mat-label>Category Name</mat-label>
+                  <input matInput formControlName="categoryName">
+                </mat-form-field>
+                <button mat-icon-button color="warn" type="button" (click)="removeMatrixCategory(catIndex)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-card-header>
+              <mat-card-content>
+                <div formArrayName="skills">
+                  @for (skillCtrl of getMatrixSkills(catIndex).controls; track $index; let skillIndex = $index) {
+                    <div class="skill-row" [formGroupName]="skillIndex" style="display: flex; gap: 16px; align-items: center;">
+                      <mat-form-field appearance="outline" style="flex: 2;">
+                        <mat-label>Technology</mat-label>
+                        <input matInput formControlName="name">
+                      </mat-form-field>
+                      
+                      <mat-form-field appearance="outline" style="flex: 1;">
+                        <mat-label>Rating (0-5)</mat-label>
+                        <input matInput type="number" min="0" max="5" formControlName="rating">
+                      </mat-form-field>
+
+                      <button mat-icon-button color="warn" type="button" (click)="removeMatrixSkill(catIndex, skillIndex)" style="margin-bottom: 16px;">
+                        <mat-icon>remove_circle</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+                <button mat-button color="primary" type="button" (click)="addMatrixSkill(catIndex)">
+                  <mat-icon>add</mat-icon> Add Technology
+                </button>
+              </mat-card-content>
+            </mat-card>
+          }
         </div>
 
         <div class="subhead">
