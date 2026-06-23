@@ -93,7 +93,7 @@ export class Cv {
         if (params['medewerkerId']) {
           this.medewerkerId = params['medewerkerId'];
           this.isBusy = true;
-          this.api.getMedewerker(this.medewerkerId).subscribe({
+          this.api.getMedewerker(this.medewerkerId!).subscribe({
             next: (medewerker) => {
               if (medewerker.orgineleCv) {
                  this.loadedCv = medewerker.orgineleCv;
