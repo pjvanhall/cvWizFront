@@ -69,4 +69,15 @@ export class AuthService {
       return false;
     }
   }
+
+  getRoles(): string[] {
+    const token = this.getToken();
+    if (!token) return [];
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.authorities || [];
+    } catch {
+      return [];
+    }
+  }
 }

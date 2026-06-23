@@ -59,6 +59,8 @@ export class LoginComponent {
         
         if (isFirstLogin) {
           this.router.navigate(['/firstlogin']);
+        } else if (this.authService.getRoles().includes('ROLE_CONSULTANT') && this.authService.getRoles().length === 1) {
+          this.router.navigate(['/cv'], { queryParams: { isOwn: true } });
         } else {
           this.router.navigate(['/medewerkers']);
         }

@@ -29,6 +29,11 @@ export class AppComponent {
 
   isAuthenticated$ = this.authService.isAuthenticated$;
 
+  get isOnlyConsultant(): boolean {
+    const roles = this.authService.getRoles ? this.authService.getRoles() : [];
+    return roles.includes('ROLE_CONSULTANT') && roles.length === 1;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);

@@ -11,7 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { CvwizApiService } from '../cvwiz-api.service';
-import { CurriculumVitaeDto, ErvaringDto, SkillMatrix } from '../cvwiz.models';
+import { CurriculumVitaeDto, ErvaringDto, MedewerkerDto, SkillMatrix } from '../cvwiz.models';
 
 @Component({
   selector: 'app-cv',
@@ -43,6 +43,8 @@ export class Cv {
   medewerkerId: string | null = null;
   consultantName: string | null = null;
   loadedCv: CurriculumVitaeDto | null = null;
+  isOwnProfile = false;
+  ownMedewerker: MedewerkerDto | null = null;
 
   readonly cvForm = this.fb.group({
     id: this.fb.control<number | null>(null),
@@ -61,15 +63,37 @@ export class Cv {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      if (params['name']) {
-        this.consultantName = params['name'];
-      }
-      if (params['medewerkerId']) {
-        this.medewerkerId = params['medewerkerId'];
-        this.showMessage('Creating a new CV for consultant.');
-      } else if (params['id']) {
-        this.cvLookupId = Number(params['id']);
-        this.loadCvById();
+      if (params['isOwn']) {
+        this.isOwnProfile = true;
+        this.isBusy = true;
+        this.api.getMijzelf().subscribe({
+          next: (medewerker) => {
+            this.ownMedewerker = medewerker;
+            if (medewerker.orgineleCv) {
+              this.loadedCv = medewerker.orgineleCv;
+              this.patchCvForm(this.loadedCv);
+              this.showMessage(`Loaded own CV.`);
+            } else {
+              this.showMessage(`No CV found for this account.`);
+            }
+            this.isBusy = false;
+          },
+          error: () => {
+            this.showMessage('Failed to load your profile.');
+            this.isBusy = false;
+          }
+        });
+      } else {
+        if (params['name']) {
+          this.consultantName = params['name'];
+        }
+        if (params['medewerkerId']) {
+          this.medewerkerId = params['medewerkerId'];
+          this.showMessage('Creating a new CV for consultant.');
+        } else if (params['id']) {
+          this.cvLookupId = Number(params['id']);
+          this.loadCvById();
+        }
       }
     });
   }
@@ -111,6 +135,27 @@ export class Cv {
       cv = this.buildCvDto();
     } catch (error) {
       this.showMessage(error instanceof Error ? error.message : 'Invalid matrix JSON.');
+      return;
+    }
+
+    if (this.isOwnProfile && this.ownMedewerker) {
+      this.isBusy = true;
+      this.ownMedewerker.orgineleCv = cv;
+      this.api.updateMedewerker(this.ownMedewerker).subscribe({
+        next: (updated) => {
+          this.ownMedewerker = updated;
+          this.loadedCv = updated.orgineleCv || null;
+          if (this.loadedCv) {
+            this.patchCvForm(this.loadedCv);
+          }
+          this.showMessage(`CV updated.`);
+          this.isBusy = false;
+        },
+        error: () => {
+          this.showMessage('Failed to update your CV.');
+          this.isBusy = false;
+        }
+      });
       return;
     }
 

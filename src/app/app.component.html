@@ -4,7 +4,7 @@
       <mat-toolbar color="primary" class="brand-toolbar">
         <span>CV Wizard</span>
       </mat-toolbar>
-      <mat-nav-list>
+      <mat-nav-list *ngIf="!isOnlyConsultant">
         <a mat-list-item routerLink="/medewerkers" routerLinkActive="active-link">
           <mat-icon matListItemIcon>people</mat-icon>
           <span matListItemTitle>Consultants</span>
@@ -16,6 +16,13 @@
         <a mat-list-item routerLink="/matrix" routerLinkActive="active-link">
           <mat-icon matListItemIcon>grid_on</mat-icon>
           <span matListItemTitle>Techniek Matrix</span>
+        </a>
+      </mat-nav-list>
+
+      <mat-nav-list *ngIf="isOnlyConsultant">
+        <a mat-list-item routerLink="/cv" [queryParams]="{isOwn: true}" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <span matListItemTitle>Mijn CV</span>
         </a>
       </mat-nav-list>
       <div class="logout-container">

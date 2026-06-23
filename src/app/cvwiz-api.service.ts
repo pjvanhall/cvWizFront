@@ -15,6 +15,10 @@ export class CvwizApiService {
     });
   }
 
+  getMijzelf(): Observable<MedewerkerDto> {
+    return this.http.get<MedewerkerDto>(`${this.baseUrl}/medewerkers/mijzelf`);
+  }
+
   getAllMedewerkers(): Observable<MedewerkerListDto[]> {
     return this.http.get<MedewerkerListDto[]>(`${this.baseUrl}/medewerkers/alle`);
   }
