@@ -277,7 +277,8 @@ export class Cv {
         id: value.matrixId ?? null,
         matrix
       },
-      ervaring: ervaringen
+      ervaring: ervaringen,
+      languages: this.loadedCv?.languages ?? {}
     };
   }
 
