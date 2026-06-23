@@ -9,7 +9,7 @@
       <mat-card-title>Curriculum Vitae</mat-card-title>
       <mat-card-subtitle>{{ consultantName || 'Standalone CV' }}</mat-card-subtitle>
       <span class="spacer"></span>
-      <button mat-stroked-button (click)="goBack()" [disabled]="isBusy">
+      <button *ngIf="!isOwnProfile" mat-stroked-button (click)="goBack()" [disabled]="isBusy">
         <mat-icon>arrow_back</mat-icon> Back to Consultants
       </button>
     </mat-card-header>
