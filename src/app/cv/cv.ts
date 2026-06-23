@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { CvwizApiService } from '../cvwiz-api.service';
@@ -26,7 +28,9 @@ import { CurriculumVitaeDto, ErvaringDto, MedewerkerDto, SkillMatrix } from '../
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatExpansionModule,
+    MatSelectModule
   ],
   templateUrl: './cv.html',
   styleUrl: './cv.scss',
@@ -45,6 +49,8 @@ export class Cv {
   loadedCv: CurriculumVitaeDto | null = null;
   isOwnProfile = false;
   ownMedewerker: MedewerkerDto | null = null;
+  baseMatrix: SkillMatrix = {};
+  availableCategories: string[] = [];
 
   readonly cvForm = this.fb.group({
     id: this.fb.control<number | null>(null),
@@ -70,6 +76,14 @@ export class Cv {
   }
 
   ngOnInit(): void {
+    this.api.getBaseMatrix().subscribe({
+      next: (dto) => {
+        this.baseMatrix = dto.matrix || {};
+        this.availableCategories = Object.keys(this.baseMatrix);
+      },
+      error: () => console.error('Could not load base matrix')
+    });
+
     this.route.queryParams.subscribe(params => {
       if (params['isOwn']) {
         this.isOwnProfile = true;
@@ -269,6 +283,28 @@ export class Cv {
   removeMatrixCategory(index: number): void {
     this.matrixCategories.removeAt(index);
     this.cvForm.markAsDirty();
+  }
+
+  getAvailableCategoriesForSelect(currentValue: string): string[] {
+    const usedCategories = this.matrixCategories.controls
+      .map(c => c.get('categoryName')?.value)
+      .filter(val => val && val !== currentValue);
+    return this.availableCategories.filter(cat => !usedCategories.includes(cat));
+  }
+
+  getAvailableTechnologiesForSelect(categoryIndex: number, currentTech: string): string[] {
+    const catCtrl = this.matrixCategories.at(categoryIndex);
+    const categoryName = catCtrl.get('categoryName')?.value;
+    if (!categoryName) return [];
+    
+    const allTechs = Object.keys(this.baseMatrix[categoryName] || {});
+    
+    const skillsArray = catCtrl.get('skills') as FormArray;
+    const usedTechs = skillsArray.controls
+      .map(s => s.get('name')?.value)
+      .filter(val => val && val !== currentTech);
+      
+    return allTechs.filter(tech => !usedTechs.includes(tech));
   }
 
   addMatrixSkill(categoryIndex: number): void {

@@ -23,6 +23,10 @@ export class CvwizApiService {
     return this.http.get<MedewerkerListDto[]>(`${this.baseUrl}/medewerkers/alle`);
   }
 
+  getBaseMatrix(): Observable<TechniekMatrixDto> {
+    return this.http.get<TechniekMatrixDto>(`${this.baseUrl}/medewerkers/basisMatrix`);
+  }
+
   updateMedewerker(dto: MedewerkerDto): Observable<MedewerkerDto> {
     return this.http.post<MedewerkerDto>(`${this.baseUrl}/medewerkers/updateMedewerker`, dto);
   }
