@@ -10,7 +10,10 @@ export interface LoginRequestDto {
 }
 
 export interface LoginResponseDto {
-  token: string;
+  username: string;
+  name: string;
+  email: string;
+  roles: string[];
 }
 
 @Injectable({
@@ -21,34 +24,37 @@ export class AuthService {
   private readonly socialAuthService = inject(SocialAuthService);
   private readonly baseUrl = '/api/gebruikers';
 
-  private readonly TOKEN_KEY = 'cvwiz_auth_token';
+  private readonly USER_INFO_KEY = 'cvwiz_user_info';
 
   // BehaviorSubject to track the authentication state reactively
-  private authState = new BehaviorSubject<boolean>(this.hasValidToken());
+  private authState = new BehaviorSubject<boolean>(this.hasUserInfo());
   public isAuthenticated$ = this.authState.asObservable();
 
   login(credentials: LoginRequestDto): Observable<LoginResponseDto> {
-    return this.http.post<LoginResponseDto>(`${this.baseUrl}/login`, credentials).pipe(
+    return this.http.post<LoginResponseDto>(`${this.baseUrl}/login`, credentials, { withCredentials: true }).pipe(
       tap((response) => {
-        if (response.token) {
-          this.setToken(response.token);
-        }
+        this.setUserInfo(response);
       })
     );
   }
 
   loginWithGoogle(idToken: string): Observable<LoginResponseDto> {
-    return this.http.post<LoginResponseDto>(`${this.baseUrl}/google-login`, { idToken }).pipe(
+    return this.http.post<LoginResponseDto>(`${this.baseUrl}/google-login`, { idToken }, { withCredentials: true }).pipe(
       tap((response) => {
-        if (response.token) {
-          this.setToken(response.token);
-        }
+        this.setUserInfo(response);
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+    this.http.post(`${this.baseUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => this.clearLocalState(),
+      error: () => this.clearLocalState()
+    });
+  }
+
+  private clearLocalState(): void {
+    localStorage.removeItem(this.USER_INFO_KEY);
     this.authState.next(false);
     
     try {
@@ -60,66 +66,46 @@ export class AuthService {
     }
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  private setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
+  private setUserInfo(response: LoginResponseDto): void {
+    localStorage.setItem(this.USER_INFO_KEY, JSON.stringify(response));
     this.authState.next(true);
   }
 
   isAuthenticated(): boolean {
-    return this.hasValidToken();
+    return this.hasUserInfo();
   }
 
-  private hasValidToken(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
+  private hasUserInfo(): boolean {
+    return !!localStorage.getItem(this.USER_INFO_KEY);
+  }
 
+  private getUserInfo(): LoginResponseDto | null {
+    const info = localStorage.getItem(this.USER_INFO_KEY);
+    if (!info) return null;
     try {
-      const decoded: any = jwtDecode(token);
-      const isExpired = decoded.exp ? (decoded.exp * 1000) < Date.now() : true;
-      if (isExpired) {
-        localStorage.removeItem(this.TOKEN_KEY);
-        return false;
-      }
-      return true;
-    } catch (e) {
-      return false;
+      return JSON.parse(info);
+    } catch {
+      return null;
     }
   }
 
   getRoles(): string[] {
-    const token = this.getToken();
-    if (!token) return [];
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.authorities || [];
-    } catch {
-      return [];
-    }
+    const info = this.getUserInfo();
+    return info ? info.roles : [];
+  }
+
+  getUsername(): string {
+    const info = this.getUserInfo();
+    return info ? info.username : '';
   }
 
   getName(): string {
-    const token = this.getToken();
-    if (!token) return '';
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.name || decoded.sub || '';
-    } catch {
-      return '';
-    }
+    const info = this.getUserInfo();
+    return info ? (info.name || info.username) : '';
   }
 
   getEmail(): string {
-    const token = this.getToken();
-    if (!token) return '';
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.email || '';
-    } catch {
-      return '';
-    }
+    const info = this.getUserInfo();
+    return info ? info.email : '';
   }
 }
