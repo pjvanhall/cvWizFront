@@ -35,7 +35,7 @@ export const appConfig: ApplicationConfig = {
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider('PLACEHOLDER_CLIENT_ID')
+            provider: new GoogleLoginProvider('975589662952-9g6899uf2uatfr8dprkgk6ql7c7kju4k.apps.googleusercontent.com')
           }
         ],
         onError: (err) => {
