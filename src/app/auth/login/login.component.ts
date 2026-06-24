@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AuthService } from '../auth.service';
+import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -24,24 +26,57 @@ import { AuthService } from '../auth.service';
     MatButtonModule,
     MatCheckboxModule,
     MatSnackBarModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    GoogleSigninButtonModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly socialAuthService = inject(SocialAuthService);
+  private authSubscription?: Subscription;
 
   isBusy = false;
 
   readonly loginForm = this.fb.nonNullable.group({
     username: ['', Validators.required],
-    password: ['', Validators.required],
-    isFirstLogin: [false]
+    password: ['', Validators.required]
   });
+
+  ngOnInit(): void {
+    this.authSubscription = this.socialAuthService.authState.subscribe((user) => {
+      if (user && user.idToken) {
+        this.isBusy = true;
+        this.authService.loginWithGoogle(user.idToken).subscribe({
+          next: () => {
+            this.isBusy = false;
+            this.snackBar.open('Google Login successful', 'Close', { duration: 3000 });
+            
+            if (this.authService.getRoles().includes('ROLE_CONSULTANT') && this.authService.getRoles().length === 1) {
+              this.router.navigate(['/cv'], { queryParams: { isOwn: true } });
+            } else {
+              this.router.navigate(['/medewerkers']);
+            }
+          },
+          error: (err) => {
+            this.isBusy = false;
+            this.snackBar.open(err?.error?.message || 'Google Login failed. You might not have an account.', 'Close', { duration: 5000 });
+            this.socialAuthService.signOut().catch(() => {});
+          }
+        });
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
 
   login(): void {
     if (this.loginForm.invalid) {
@@ -50,16 +85,14 @@ export class LoginComponent {
     }
 
     this.isBusy = true;
-    const { username, password, isFirstLogin } = this.loginForm.getRawValue();
+    const { username, password } = this.loginForm.getRawValue();
 
     this.authService.login({ username, password }).subscribe({
       next: () => {
         this.isBusy = false;
         this.snackBar.open('Login successful', 'Close', { duration: 3000 });
         
-        if (isFirstLogin) {
-          this.router.navigate(['/firstlogin']);
-        } else if (this.authService.getRoles().includes('ROLE_CONSULTANT') && this.authService.getRoles().length === 1) {
+        if (this.authService.getRoles().includes('ROLE_CONSULTANT') && this.authService.getRoles().length === 1) {
           this.router.navigate(['/cv'], { queryParams: { isOwn: true } });
         } else {
           this.router.navigate(['/medewerkers']);

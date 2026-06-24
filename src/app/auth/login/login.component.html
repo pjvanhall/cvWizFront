@@ -21,13 +21,11 @@
           <mat-error *ngIf="loginForm.controls.password.hasError('required')">Password is required</mat-error>
         </mat-form-field>
 
-        <mat-checkbox formControlName="isFirstLogin" color="primary">
-          This is my first login (Start CV Setup)
-        </mat-checkbox>
       </form>
     </mat-card-content>
 
-    <mat-card-actions align="end">
+    <mat-card-actions align="end" style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
+      <asl-google-signin-button type="standard" size="medium"></asl-google-signin-button>
       <button mat-flat-button color="primary" [disabled]="isBusy" (click)="login()">Login</button>
     </mat-card-actions>
   </mat-card>

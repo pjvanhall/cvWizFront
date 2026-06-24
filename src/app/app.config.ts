@@ -10,13 +10,12 @@ import { Matrix } from './matrix/matrix';
 import { authGuard } from './auth/auth.guard';
 import { authInterceptor } from './auth/auth.interceptor';
 import { LoginComponent } from './auth/login/login.component';
-import { FirstloginComponent } from './auth/firstlogin/firstlogin.component';
+import { SocialAuthServiceConfig, GoogleLoginProvider, SOCIAL_AUTH_CONFIG } from '@abacritt/angularx-social-login';
 
 
 const routes: Routes = [
   { path: '', redirectTo: 'medewerkers', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'firstlogin', component: FirstloginComponent, canActivate: [authGuard] },
   { path: 'medewerkers', component: Medewerker, canActivate: [authGuard] },
   { path: 'cv', component: Cv, canActivate: [authGuard] },
   { path: 'beheerders', component: Beheerder, canActivate: [authGuard] },
@@ -28,6 +27,21 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimationsAsync(),
-    provideRouter(routes)
+    provideRouter(routes),
+    {
+      provide: SOCIAL_AUTH_CONFIG,
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider('PLACEHOLDER_CLIENT_ID')
+          }
+        ],
+        onError: (err) => {
+          console.error(err);
+        }
+      } as SocialAuthServiceConfig,
+    }
   ]
 };

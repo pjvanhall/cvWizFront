@@ -9,6 +9,7 @@
     "watch": "ng build --watch --configuration development"
   },
   "dependencies": {
+    "@abacritt/angularx-social-login": "^2.6.0",
     "@angular/animations": "^22.0.0",
     "@angular/cdk": "^22.0.1",
     "@angular/common": "^22.0.0",

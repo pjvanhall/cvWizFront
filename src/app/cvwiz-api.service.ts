@@ -31,9 +31,6 @@ export class CvwizApiService {
     return this.http.post<MedewerkerDto>(`${this.baseUrl}/medewerkers/updateMedewerker`, dto);
   }
 
-  completeOneTimeCv(cv: CurriculumVitaeDto): Observable<MedewerkerDto> {
-    return this.http.post<MedewerkerDto>(`${this.baseUrl}/medewerkers/curriculumVitae/eersteLogin`, cv);
-  }
 
   createMedewerker(dto: MedewerkerDto): Observable<MedewerkerDto> {
     return this.http.post<MedewerkerDto>(`${this.baseUrl}/beheerders/nieuweMedewerker`, dto);
