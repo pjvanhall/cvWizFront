@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 export interface LoginRequestDto {
   username?: string;
@@ -17,6 +18,7 @@ export interface LoginResponseDto {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly socialAuthService = inject(SocialAuthService);
   private readonly baseUrl = '/api/gebruikers';
 
   private readonly TOKEN_KEY = 'cvwiz_auth_token';
@@ -48,6 +50,14 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this.authState.next(false);
+    
+    try {
+      this.socialAuthService.signOut().catch(() => {
+        // Ignore error if user is not signed in with Google
+      });
+    } catch (e) {
+      // Ignore synchronous errors
+    }
   }
 
   getToken(): string | null {
@@ -88,6 +98,28 @@ export class AuthService {
       return decoded.authorities || [];
     } catch {
       return [];
+    }
+  }
+
+  getName(): string {
+    const token = this.getToken();
+    if (!token) return '';
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.name || decoded.sub || '';
+    } catch {
+      return '';
+    }
+  }
+
+  getEmail(): string {
+    const token = this.getToken();
+    if (!token) return '';
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.email || '';
+    } catch {
+      return '';
     }
   }
 }

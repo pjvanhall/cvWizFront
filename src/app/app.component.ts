@@ -6,6 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from './auth/auth.service';
 
 @Component({
@@ -18,7 +19,8 @@ import { AuthService } from './auth/auth.service';
     MatToolbarModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatMenuModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -32,6 +34,14 @@ export class AppComponent {
   get isOnlyConsultant(): boolean {
     const roles = this.authService.getRoles ? this.authService.getRoles() : [];
     return roles.includes('ROLE_CONSULTANT') && roles.length === 1;
+  }
+
+  get name(): string {
+    return this.authService.getName();
+  }
+
+  get email(): string {
+    return this.authService.getEmail();
   }
 
   logout(): void {
