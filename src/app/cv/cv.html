@@ -46,20 +46,26 @@
           <mat-accordion multi="true">
             @for (catCtrl of matrixCategories.controls; track $index; let catIndex = $index) {
               <mat-expansion-panel [formGroupName]="catIndex" style="margin-bottom: 16px;">
-                <mat-expansion-panel-header>
+                <mat-expansion-panel-header style="height: auto; position: relative; padding-right: 64px;">
                   <mat-panel-title style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <mat-form-field appearance="outline" style="flex: 1; margin-right: 16px; margin-top: 16px;" (click)="$event.stopPropagation()">
+                    <mat-form-field appearance="outline" style="flex: 1; margin: 16px 16px 16px 0;" (click)="$event.stopPropagation()">
                       <mat-label>Category Name</mat-label>
-                      <mat-select formControlName="categoryName">
-                        @for (category of getAvailableCategoriesForSelect(catCtrl.get('categoryName')?.value); track category) {
-                          <mat-option [value]="category">{{ category }}</mat-option>
-                        }
-                      </mat-select>
+                      @if (catCtrl.get('categoryName')?.value) {
+                        <input matInput formControlName="categoryName" readonly>
+                      } @else {
+                        <mat-select formControlName="categoryName">
+                          @for (category of getAvailableCategoriesForSelect(catCtrl.get('categoryName')?.value); track category) {
+                            <mat-option [value]="category">{{ category }}</mat-option>
+                          } @empty {
+                            <mat-option disabled>No more categories available</mat-option>
+                          }
+                        </mat-select>
+                      }
                     </mat-form-field>
-                    <button mat-icon-button color="warn" type="button" (click)="removeMatrixCategory(catIndex); $event.stopPropagation()">
-                      <mat-icon>delete</mat-icon>
-                    </button>
                   </mat-panel-title>
+                  <button mat-icon-button color="warn" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 2;" (click)="removeMatrixCategory(catIndex); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </mat-expansion-panel-header>
                 
                 <div formArrayName="skills">
@@ -67,16 +73,22 @@
                     <div class="skill-row" [formGroupName]="skillIndex" style="display: flex; gap: 16px; align-items: center;">
                       <mat-form-field appearance="outline" style="flex: 2;">
                         <mat-label>Technology</mat-label>
-                        <mat-select formControlName="name">
-                          @for (tech of getAvailableTechnologiesForSelect(catIndex, skillCtrl.get('name')?.value); track tech) {
-                            <mat-option [value]="tech">{{ tech }}</mat-option>
-                          }
-                        </mat-select>
+                        @if (skillCtrl.get('name')?.value) {
+                          <input matInput formControlName="name" readonly>
+                        } @else {
+                          <mat-select formControlName="name">
+                            @for (tech of getAvailableTechnologiesForSelect(catIndex, skillCtrl.get('name')?.value); track tech) {
+                              <mat-option [value]="tech">{{ tech }}</mat-option>
+                            } @empty {
+                              <mat-option disabled>No more technologies available</mat-option>
+                            }
+                          </mat-select>
+                        }
                       </mat-form-field>
                       
                       <mat-form-field appearance="outline" style="flex: 1;">
-                        <mat-label>Rating (0-5)</mat-label>
-                        <input matInput type="number" min="0" max="5" formControlName="rating">
+                        <mat-label>Rating (1-5)</mat-label>
+                        <input matInput type="number" min="1" max="5" formControlName="rating">
                       </mat-form-field>
 
                       <button mat-icon-button color="warn" type="button" (click)="removeMatrixSkill(catIndex, skillIndex)" style="margin-bottom: 16px;">

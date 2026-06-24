@@ -287,9 +287,9 @@ export class Cv {
 
   getAvailableCategoriesForSelect(currentValue: string): string[] {
     const usedCategories = this.matrixCategories.controls
-      .map(c => c.get('categoryName')?.value)
-      .filter(val => val && val !== currentValue);
-    return this.availableCategories.filter(cat => !usedCategories.includes(cat));
+      .map(c => c.get('categoryName')?.value?.toLowerCase())
+      .filter(val => val && val !== currentValue?.toLowerCase());
+    return this.availableCategories.filter(cat => !usedCategories.includes(cat.toLowerCase()));
   }
 
   getAvailableTechnologiesForSelect(categoryIndex: number, currentTech: string): string[] {
@@ -297,28 +297,55 @@ export class Cv {
     const categoryName = catCtrl.get('categoryName')?.value;
     if (!categoryName) return [];
     
-    const allTechs = Object.keys(this.baseMatrix[categoryName] || {});
+    const actualKey = Object.keys(this.baseMatrix).find(k => k.trim().toLowerCase() === categoryName.trim().toLowerCase());
+    if (!actualKey) return [];
+    
+    const allTechs = Object.keys(this.baseMatrix[actualKey] || {});
     
     const skillsArray = catCtrl.get('skills') as FormArray;
     const usedTechs = skillsArray.controls
-      .map(s => s.get('name')?.value)
-      .filter(val => val && val !== currentTech);
+      .map(s => s.get('name')?.value?.toLowerCase())
+      .filter(val => val && val !== currentTech?.toLowerCase());
       
-    return allTechs.filter(tech => !usedTechs.includes(tech));
+    return allTechs.filter(tech => !usedTechs.includes(tech.toLowerCase()));
+  }
+
+  getBaseMatrixKeysForCat(categoryIndex: number): string {
+    const catCtrl = this.matrixCategories.at(categoryIndex);
+    const categoryName = catCtrl.get('categoryName')?.value;
+    if (!categoryName) return 'No Category Name';
+    const actualKey = Object.keys(this.baseMatrix).find(k => k.trim().toLowerCase() === categoryName.trim().toLowerCase());
+    if (!actualKey) return 'Category Not Found In Base Matrix';
+    const techs = Object.keys(this.baseMatrix[actualKey] || {});
+    return techs.length > 0 ? techs.join(', ') : 'Empty Category';
+  }
+
+  getBaseMatrixAllKeys(): string {
+    return Object.keys(this.baseMatrix).join(', ') || 'NONE';
   }
 
   canAddCategory(): boolean {
-    return this.getAvailableCategoriesForSelect('').length > 0;
+    return this.matrixCategories.length < this.availableCategories.length;
   }
 
   canAddTechnology(categoryIndex: number): boolean {
-    return this.getAvailableTechnologiesForSelect(categoryIndex, '').length > 0;
+    const catCtrl = this.matrixCategories.at(categoryIndex);
+    const categoryName = catCtrl.get('categoryName')?.value;
+    if (!categoryName) return false;
+    
+    const actualKey = Object.keys(this.baseMatrix).find(k => k.trim().toLowerCase() === categoryName.trim().toLowerCase());
+    if (!actualKey) return false;
+    
+    const allTechs = Object.keys(this.baseMatrix[actualKey] || {});
+    const skillsArray = catCtrl.get('skills') as FormArray;
+    
+    return skillsArray.length < allTechs.length;
   }
 
   addMatrixSkill(categoryIndex: number): void {
     this.getMatrixSkills(categoryIndex).push(this.fb.group({
       name: ['', Validators.required],
-      rating: [0, [Validators.required, Validators.min(0), Validators.max(5)]]
+      rating: [1, [Validators.required, Validators.min(1), Validators.max(5)]]
     }));
     this.cvForm.markAsDirty();
   }
@@ -387,16 +414,23 @@ export class Cv {
     for (const categoryName of Object.keys(matrixObj)) {
       const skillsArray = new FormArray<any>([]);
       const skillsObj = matrixObj[categoryName] || {};
+      let hasNonZero = false;
       for (const skillName of Object.keys(skillsObj)) {
-        skillsArray.push(this.fb.group({
-          name: [skillName, Validators.required],
-          rating: [skillsObj[skillName], [Validators.required, Validators.min(0), Validators.max(5)]]
+        const ratingValue = skillsObj[skillName] || 0;
+        if (ratingValue > 0) {
+          skillsArray.push(this.fb.group({
+            name: [skillName, Validators.required],
+            rating: [ratingValue, [Validators.required, Validators.min(1), Validators.max(5)]]
+          }));
+          hasNonZero = true;
+        }
+      }
+      if (hasNonZero) {
+        this.matrixCategories.push(this.fb.group({
+          categoryName: [categoryName, Validators.required],
+          skills: skillsArray
         }));
       }
-      this.matrixCategories.push(this.fb.group({
-        categoryName: [categoryName, Validators.required],
-        skills: skillsArray
-      }));
     }
 
     this.ervaringen.clear();
