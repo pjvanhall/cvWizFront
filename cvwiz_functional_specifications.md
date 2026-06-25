@@ -13,10 +13,10 @@ This document outlines the functional specifications of the CV Wizard frontend, 
 
 ### 2.1 Initialization & Routing Flows
 - **Own Profile (Default Fallback)**: 
-  - If no specific `id` or `medewerkerId` is provided in the query string, the system defaults to fetching the logged-in user's profile (`getMijzelf`).
+  - If no specific `id` or `medewerkerId` is provided in the query string, the system defaults to fetching the logged-in user's CV via their profile (`getMijzelf`).
   - If the user does not have an original CV (`orgineleCv`), the system automatically provisions a new CV and links it to the user.
-- **Consultant Profile (`medewerkerId=...`)**:
-  - Fetches the profile of a specific consultant.
+- **Consultant CV (`medewerkerId=...`)**:
+  - Fetches the CV of a specific consultant.
   - Automatically provisions a new CV for the consultant if they do not already have one, then redirects the route to load the newly created CV ID.
 - **Direct CV Load (`id=...`)**:
   - Fetches and loads a specific CV directly by its ID.
