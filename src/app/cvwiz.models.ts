@@ -42,7 +42,7 @@ export interface MedewerkerDto {
   achternaam: string;
   telefoon: string;
   emailAdres: string;
-  orgineleCv: CurriculumVitaeDto;
+  orgineleCv?: CurriculumVitaeDto;
   cvLijst: CurriculumVitaeDto[];
 }
 

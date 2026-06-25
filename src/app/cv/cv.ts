@@ -211,10 +211,10 @@ export class Cv {
             medewerker.orgineleCv = cv;
             this.api.updateMedewerker(medewerker).subscribe({
               next: (updated) => {
-                this.loadedCv = updated.orgineleCv;
+                this.loadedCv = updated.orgineleCv ?? null;
                 this.patchCvForm(this.loadedCv);
                 this.showMessage(`Created new CV for consultant.`);
-                this.router.navigate(['/cv'], { queryParams: { id: this.loadedCv.id } });
+                this.router.navigate(['/cv'], { queryParams: { id: this.loadedCv?.id } });
                 this.isBusy = false;
               },
               error: () => {
@@ -399,7 +399,14 @@ export class Cv {
     };
   }
 
-  private patchCvForm(cv: CurriculumVitaeDto): void {
+  private patchCvForm(cv: CurriculumVitaeDto | null): void {
+    if (!cv) {
+      this.cvForm.reset();
+      this.matrixCategories.clear();
+      this.ervaringen.clear();
+      return;
+    }
+
     this.cvForm.patchValue({
       id: cv.id ?? null,
       bestandsNaam: cv.bestandsNaam ?? '',
