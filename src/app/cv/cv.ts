@@ -122,6 +122,7 @@ export class Cv {
       this.api.getMijzelf().subscribe({
         next: (medewerker) => {
           this.ownMedewerker = medewerker;
+          this.consultantName = `${medewerker.voornaam} ${medewerker.achternaam}`;
           if (medewerker.orgineleCv) {
             this.loadedCv = medewerker.orgineleCv;
             this.patchCvForm(this.loadedCv);
