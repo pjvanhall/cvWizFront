@@ -71,6 +71,30 @@ describe('MedewerkerDetailDialogComponent', () => {
       });
     });
 
+    it('should patch form with empty strings if data has missing properties', () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [MedewerkerDetailDialogComponent, NoopAnimationsModule],
+        providers: [
+          { provide: CvwizApiService, useValue: mockApiService },
+          { provide: MatDialogRef, useValue: mockDialogRef },
+          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: MAT_DIALOG_DATA, useValue: {} as any }
+        ]
+      });
+      const newFixture = TestBed.createComponent(MedewerkerDetailDialogComponent);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+      
+      expect(newComponent.medewerkerForm.value).toEqual({
+        id: '',
+        voornaam: '',
+        achternaam: '',
+        telefoon: '',
+        emailAdres: ''
+      });
+    });
+
     it('should close on cancel', () => {
       component.onCancel();
       expect(mockDialogRef.close).toHaveBeenCalled();
@@ -175,6 +199,20 @@ describe('MedewerkerDetailDialogComponent', () => {
       expect(mockApiService.deleteMedewerker).toHaveBeenCalledWith('John', 'Doe');
       expect(mockSnackBar.open).toHaveBeenCalledWith('Consultant deleted successfully', 'Close', expect.any(Object));
       expect(mockDialogRef.close).toHaveBeenCalledWith('deleted');
+    });
+
+    it('should prompt without warning if orgineleCv is missing', () => {
+      component.data = { ...existingData, orgineleCv: undefined } as any;
+      component.onDelete();
+      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete consultant John Doe?');
+      expect(mockApiService.deleteMedewerker).toHaveBeenCalledWith('John', 'Doe');
+    });
+
+    it('should handle delete with missing names', () => {
+      component.data = { ...existingData, voornaam: undefined, achternaam: undefined } as any;
+      component.onDelete();
+      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete consultant undefined undefined?\n\nWARNING: This consultant has a CV coupled. Deleting this consultant will also permanently delete their CV and skill matrix!');
+      expect(mockApiService.deleteMedewerker).toHaveBeenCalledWith('', '');
     });
 
     it('should handle delete cancellation', () => {

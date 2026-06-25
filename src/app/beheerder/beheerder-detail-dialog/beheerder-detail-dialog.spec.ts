@@ -93,6 +93,34 @@ describe('BeheerderDetailDialogComponent', () => {
     });
   });
 
+  it('should patch form values with empty strings when data properties are missing', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [BeheerderDetailDialogComponent, NoopAnimationsModule],
+      providers: [
+        { provide: CvwizApiService, useValue: mockApiService },
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: MatSnackBar, useValue: mockSnackBar },
+        { 
+          provide: MAT_DIALOG_DATA, 
+          useValue: { } as any // empty object
+        }
+      ]
+    });
+    
+    const newFixture = TestBed.createComponent(BeheerderDetailDialogComponent);
+    const newComponent = newFixture.componentInstance;
+    newFixture.detectChanges();
+
+    expect(newComponent.beheerderForm.value).toEqual({
+      id: '',
+      voornaam: '',
+      achternaam: '',
+      telefoon: '',
+      emailAdres: ''
+    });
+  });
+
   it('should call close on dialog when onCancel is called', () => {
     component.onCancel();
     expect(mockDialogRef.close).toHaveBeenCalled();
@@ -160,6 +188,21 @@ describe('BeheerderDetailDialogComponent', () => {
     component.onSave();
     
     expect(mockSnackBar.open).toHaveBeenCalledWith('Failed to create Manager', 'Close', { duration: 3000 });
+    expect(component.isBusy).toBe(false);
+  });
+
+  it('should handle update error', () => {
+    component.beheerderForm.patchValue({
+      id: '123',
+      voornaam: 'John',
+      achternaam: 'Doe',
+      emailAdres: 'test@test.com'
+    });
+    mockApiService.updateBeheerder.mockReturnValue(throwError(() => new Error('Err')));
+    
+    component.onSave();
+    
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Failed to update Manager', 'Close', { duration: 3000 });
     expect(component.isBusy).toBe(false);
   });
 

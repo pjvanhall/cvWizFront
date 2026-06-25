@@ -64,6 +64,19 @@ describe('Matrix Component', () => {
     expect(component.matrixData.data[1]).toEqual({ isCategory: false, category: 'Databases', technique: 'MySQL' });
   });
 
+  it('should handle load matrix with empty data', () => {
+    mockApiService.getTechniekMatrix.mockReturnValue(of({ matrix: null }));
+    component.loadBaseMatrix();
+    expect(component.matrixData.data.length).toBe(0);
+  });
+
+  it('should handle load matrix with category but empty tools', () => {
+    mockApiService.getTechniekMatrix.mockReturnValue(of({ matrix: { 'EmptyCat': null } }));
+    component.loadBaseMatrix();
+    expect(component.matrixData.data.length).toBe(1);
+    expect(component.matrixData.data[0].category).toBe('EmptyCat');
+  });
+
   it('should handle load matrix error', () => {
     mockApiService.getTechniekMatrix.mockReturnValue(throwError(() => new Error('Error')));
     component.loadBaseMatrix();
@@ -81,6 +94,13 @@ describe('Matrix Component', () => {
       expect(mockApiService.addEmptyCategory).toHaveBeenCalledWith('New Cat');
       expect(mockSnackBar.open).toHaveBeenCalledWith('Category added', 'Close', expect.any(Object));
       expect(mockApiService.getTechniekMatrix).toHaveBeenCalledTimes(2);
+    });
+
+    it('should use default message if msg is null', () => {
+      jest.spyOn(window, 'prompt').mockReturnValue('New Cat 2');
+      mockApiService.addEmptyCategory.mockReturnValue(of(null));
+      component.addNewCategory();
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Category added', 'Close', expect.any(Object));
     });
 
     it('should do nothing if prompt is empty', () => {
@@ -111,6 +131,21 @@ describe('Matrix Component', () => {
       expect(mockApiService.getTechniekMatrix).toHaveBeenCalledTimes(2);
     });
 
+    it('should use default message if msg is null when editing category', () => {
+      const row: MatrixRow = { isCategory: true, category: 'Databases', technique: '' };
+      jest.spyOn(window, 'prompt').mockReturnValue('New DBs 2');
+      mockApiService.editCategory.mockReturnValue(of(null));
+      component.editRow(row);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Category updated', 'Close', expect.any(Object));
+    });
+
+    it('should do nothing if prompt is same as old category', () => {
+      const row: MatrixRow = { isCategory: true, category: 'Databases', technique: '' };
+      jest.spyOn(window, 'prompt').mockReturnValue('Databases');
+      component.editRow(row);
+      expect(mockApiService.editCategory).not.toHaveBeenCalled();
+    });
+
     it('should handle edit category error', () => {
       const row: MatrixRow = { isCategory: true, category: 'Databases', technique: '' };
       jest.spyOn(window, 'prompt').mockReturnValue('New DBs');
@@ -129,6 +164,21 @@ describe('Matrix Component', () => {
       expect(window.prompt).toHaveBeenCalledWith(expect.stringContaining("Enter new name for technique 'MySQL'"), 'MySQL');
       expect(mockApiService.editTechnique).toHaveBeenCalledWith('Databases', 'MySQL', 'PostgreSQL');
       expect(mockSnackBar.open).toHaveBeenCalledWith('Technique updated', 'Close', expect.any(Object));
+    });
+
+    it('should use default message if msg is null when editing technique', () => {
+      const row: MatrixRow = { isCategory: false, category: 'Databases', technique: 'MySQL' };
+      jest.spyOn(window, 'prompt').mockReturnValue('PostgreSQL 2');
+      mockApiService.editTechnique.mockReturnValue(of(null));
+      component.editRow(row);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Technique updated', 'Close', expect.any(Object));
+    });
+
+    it('should do nothing if prompt is same as old technique', () => {
+      const row: MatrixRow = { isCategory: false, category: 'Databases', technique: 'MySQL' };
+      jest.spyOn(window, 'prompt').mockReturnValue('MySQL');
+      component.editRow(row);
+      expect(mockApiService.editTechnique).not.toHaveBeenCalled();
     });
 
     it('should do nothing if prompt is cancelled for technique', () => {
@@ -158,6 +208,20 @@ describe('Matrix Component', () => {
       expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining("permanently delete the entire category 'Databases'"));
       expect(mockApiService.deleteCategory).toHaveBeenCalledWith('Databases');
       expect(mockSnackBar.open).toHaveBeenCalledWith('Category deleted', 'Close', expect.any(Object));
+    });
+
+    it('should use default message if msg is null when deleting category', () => {
+      const row: MatrixRow = { isCategory: true, category: 'Databases', technique: '' };
+      mockApiService.deleteCategory.mockReturnValue(of(null));
+      component.deleteRow(row);
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Category deleted', 'Close', expect.any(Object));
+    });
+
+    it('should do nothing if confirm is false for category', () => {
+      const row: MatrixRow = { isCategory: true, category: 'Databases', technique: '' };
+      jest.spyOn(window, 'confirm').mockReturnValue(false);
+      component.deleteRow(row);
+      expect(mockApiService.deleteCategory).not.toHaveBeenCalled();
     });
 
     it('should handle delete category error', () => {
