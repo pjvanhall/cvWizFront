@@ -106,7 +106,7 @@ describe('Cv Component', () => {
   describe('Initialization (Default fallback)', () => {
     it('should load base matrix and own CV if no params provided', () => {
       createComponent();
-      window.history.replaceState({}, '', '');
+      Object.defineProperty(window.history, 'state', { value: {}, configurable: true });
       fixture.detectChanges();
 
 
@@ -126,7 +126,7 @@ describe('Cv Component', () => {
       mockApiService.updateMedewerker.mockReturnValue(of({ ...mockMedewerkerWithoutCv, orgineleCv: { id: 2, bestandsNaam: 'CV Jane Doe' } }));
       
       createComponent();
-      window.history.replaceState({}, '', '');
+      Object.defineProperty(window.history, 'state', { value: {}, configurable: true });
       fixture.detectChanges();
 
       expect(component.loadedCv?.bestandsNaam).toBe('CV Jane Doe');
@@ -137,7 +137,7 @@ describe('Cv Component', () => {
     it('should show error if getMijzelf fails', () => {
       mockApiService.getMijzelf.mockReturnValue(throwError(() => new Error('Err')));
       createComponent();
-      window.history.replaceState({}, '', '');
+      Object.defineProperty(window.history, 'state', { value: {}, configurable: true });
       fixture.detectChanges();
 
       expect(mockSnackBar.open).toHaveBeenCalledWith('Failed to load your profile.', 'Close', expect.any(Object));
@@ -153,12 +153,30 @@ describe('Cv Component', () => {
       expect(consoleSpy).toHaveBeenCalledWith('Could not load base matrix');
       consoleSpy.mockRestore();
     });
+
+    it('should handle null history.state', () => {
+      // Simulate environment where history.state is entirely null
+      const originalState = window.history.state;
+      Object.defineProperty(window.history, 'state', { value: null, configurable: true });
+      createComponent();
+      fixture.detectChanges();
+      expect(component.isOwnProfile).toBe(true);
+      // Restore
+      Object.defineProperty(window.history, 'state', { value: originalState, configurable: true });
+    });
+
+    it('should handle null dto.matrix', () => {
+      mockApiService.getBaseMatrix.mockReturnValue(of({ matrix: null as any }));
+      createComponent();
+      fixture.detectChanges();
+      expect(component.baseMatrix).toEqual({});
+    });
   });
 
   describe('Initialization (medewerkerId)', () => {
     it('should load medewerker CV if medewerkerId is provided', () => {
       createComponent();
-      window.history.replaceState({ medewerkerId: '123' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { medewerkerId: '123' }, configurable: true });
       fixture.detectChanges();
 
       expect(mockApiService.getMedewerker).toHaveBeenCalledWith('123');
@@ -168,7 +186,7 @@ describe('Cv Component', () => {
 
     it('should handle missing orgineleCv in updateMedewerker response for saveCurrentCv', () => {
       createComponent();
-      window.history.replaceState({ medewerkerId: '123' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { medewerkerId: '123' }, configurable: true });
       fixture.detectChanges();
 
       component.cvForm.patchValue({ id: null });
@@ -181,7 +199,7 @@ describe('Cv Component', () => {
 
     it('should assign consultantName if name is provided in query params', () => {
       createComponent();
-      window.history.replaceState({ medewerkerId: '123', name: 'John Doe' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { medewerkerId: '123', name: 'John Doe' }, configurable: true });
       fixture.detectChanges();
 
       expect(component.consultantName).toBe('John Doe');
@@ -192,7 +210,7 @@ describe('Cv Component', () => {
       mockApiService.updateMedewerker.mockReturnValue(of({ ...mockMedewerkerWithoutCv, orgineleCv: { id: 3, bestandsNaam: 'CV Jane Doe' } }));
       
       createComponent();
-      window.history.replaceState({ medewerkerId: '123' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { medewerkerId: '123' }, configurable: true });
       fixture.detectChanges();
 
       expect(mockApiService.updateMedewerker).toHaveBeenCalled();
@@ -203,7 +221,7 @@ describe('Cv Component', () => {
     it('should show error if getMedewerker fails', () => {
       mockApiService.getMedewerker.mockReturnValue(throwError(() => new Error('Err')));
       createComponent();
-      window.history.replaceState({ medewerkerId: '123' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { medewerkerId: '123' }, configurable: true });
       fixture.detectChanges();
 
       expect(mockSnackBar.open).toHaveBeenCalledWith('Failed to load consultant details.', 'Close', expect.any(Object));
@@ -214,7 +232,7 @@ describe('Cv Component', () => {
   describe('Initialization (id)', () => {
     it('should load CV directly if id is provided', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
 
@@ -234,7 +252,7 @@ describe('Cv Component', () => {
     it('should handle getCurriculumVitae error', () => {
       mockApiService.getCurriculumVitae.mockReturnValue(throwError(() => new Error('Err')));
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
 
@@ -245,7 +263,7 @@ describe('Cv Component', () => {
   describe('Form Actions & Methods', () => {
     beforeEach(() => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
     });
 
@@ -518,7 +536,7 @@ describe('Cv Component', () => {
   describe('Select Dropdowns filtering', () => {
     beforeEach(() => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
     });
 
@@ -550,7 +568,7 @@ describe('Cv Component', () => {
   describe('Saving logic', () => {
     it('should call updateMedewerker when saving own CV (isOwnProfile)', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       component.isOwnProfile = true;
@@ -562,7 +580,7 @@ describe('Cv Component', () => {
 
     it('should show error if updateMedewerker fails when saving own CV', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       component.isOwnProfile = true;
@@ -574,7 +592,7 @@ describe('Cv Component', () => {
 
     it('should create CV for medewerker when cv.id is null and medewerkerId is set', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       component.cvForm.patchValue({ id: null });
@@ -587,7 +605,7 @@ describe('Cv Component', () => {
 
     it('should show error if getMedewerker fails when creating CV for medewerker', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       component.cvForm.patchValue({ id: null });
@@ -599,7 +617,7 @@ describe('Cv Component', () => {
 
     it('should show error if updateMedewerker fails when creating CV for medewerker', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       component.cvForm.patchValue({ id: null });
@@ -611,7 +629,7 @@ describe('Cv Component', () => {
 
     it('should call updateCurriculumVitae when cv has id', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       component.saveCurrentCv();
@@ -621,7 +639,7 @@ describe('Cv Component', () => {
 
     it('should show error if updateCurriculumVitae fails', () => {
       createComponent();
-      window.history.replaceState({ id: '1' }, '', '');
+      Object.defineProperty(window.history, 'state', { value: { id: '1' }, configurable: true });
       fixture.detectChanges();
 
       mockApiService.updateCurriculumVitae.mockReturnValue(throwError(() => new Error('Err')));
