@@ -28,6 +28,7 @@ The application uses JWT-based authentication via secure HTTP-only cookies to se
 State is managed locally within each individual feature component to prevent namespace collision and crossover bugs. 
 * **Reactive Forms:** The application relies heavily on Angular's `ReactiveFormsModule` (`FormBuilder`, `FormGroup`, `FormArray`). Every feature component maintains its own isolated form logic.
 * **Component State:** Tracking variables (e.g., `isBusy` for loading spinners, `cvLookupId`, `selectedMedewerker`) reside in the class instance of the active component. State is localized to the active route.
+* **Router State (History API)**: When passing sensitive data (such as internal resource IDs) between routes, the application uses Angular's Navigation Extras state (`history.state`). This ensures that sensitive internal IDs are never exposed in the browser's URL query string, reducing the risk of data leakage via logs, browser history, or Referer headers.
 
 ### 3. API Communication & Services
 Communication with the backend is abstracted into a dedicated service: `CvwizApiService`.
