@@ -18,10 +18,10 @@ The application employs a feature-based modular structure. The main `AppComponen
   * `MatrixComponent` (`/matrix`): Interfaces with the dynamic categorizations of tools, programming languages, and proficiency levels.
 
 ### 2. Authentication & Security
-The application uses JWT-based authentication to secure routes and API requests.
-* **AuthService**: Manages the authentication state (`BehaviorSubject`), token storage (`localStorage`), and login/logout logic.
+The application uses JWT-based authentication via secure HTTP-only cookies to secure routes and API requests.
+* **AuthService**: Manages the authentication state (`BehaviorSubject`) and login/logout logic. (Note: Tokens are NOT stored in `localStorage` for security reasons).
 * **AuthGuard**: Protects routes (like `/medewerkers`, `/cv`) by redirecting unauthenticated users to the `/login` screen.
-* **AuthInterceptor**: Automatically intercepts outgoing HTTP requests and injects the JWT token into the `Authorization: Bearer` header.
+* **AuthInterceptor**: Automatically intercepts outgoing HTTP requests and adds `withCredentials: true` so the browser attaches the HTTP-only JWT cookie (`cvwiz_jwt`) to API calls.
 * **Login Flows**: The app distinguishes between a standard login (`LoginComponent`) and a first-time login (`FirstloginComponent`). The first-time login features a multi-step `MatStepper` wizard guiding the user to complete their initial CV configuration.
 
 ### 3. State Management
