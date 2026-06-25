@@ -92,9 +92,9 @@ export class Medewerker implements OnInit {
         this.isBusy = false;
         const name = `${consultant.voornaam} ${consultant.achternaam}`;
         if (fullData.orgineleCv?.id) {
-          this.router.navigate(['/cv'], { queryParams: { id: fullData.orgineleCv.id, name } });
+          this.router.navigate(['/cv'], { state: { id: fullData.orgineleCv.id, name } });
         } else {
-          this.router.navigate(['/cv'], { queryParams: { medewerkerId: fullData.id, name } });
+          this.router.navigate(['/cv'], { state: { medewerkerId: fullData.id, name } });
         }
       },
       error: () => {

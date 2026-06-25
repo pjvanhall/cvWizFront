@@ -127,7 +127,7 @@ describe('Medewerker Component', () => {
       component.editCv(mockConsultants[0]);
 
       expect(mockApiService.getMedewerker).toHaveBeenCalledWith('1');
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/cv'], { queryParams: { id: 99, name: 'Test User' } });
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/cv'], { state: { id: 99, name: 'Test User' } });
       expect(component.isBusy).toBe(false);
     });
 
@@ -138,7 +138,7 @@ describe('Medewerker Component', () => {
       component.editCv(mockConsultants[0]);
 
       expect(mockApiService.getMedewerker).toHaveBeenCalledWith('1');
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/cv'], { queryParams: { medewerkerId: '1', name: 'Test User' } });
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/cv'], { state: { medewerkerId: '1', name: 'Test User' } });
       expect(component.isBusy).toBe(false);
     });
 
