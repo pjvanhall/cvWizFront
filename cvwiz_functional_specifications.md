@@ -15,11 +15,12 @@ This document outlines the functional specifications of the CV Wizard frontend, 
 - **Own Profile (Default Fallback)**: 
   - If no specific `id` or `medewerkerId` is provided in the query string, the system defaults to fetching the logged-in user's CV via their profile (`getMijzelf`).
   - If the user does not have an original CV (`orgineleCv`), the system automatically provisions a new CV and links it to the user.
-- **Consultant CV (`medewerkerId=...`)**:
-  - Fetches the CV of a specific consultant.
-  - Automatically provisions a new CV for the consultant if they do not already have one, then redirects the route to load the newly created CV ID.
-- **Direct CV Load (`id=...`)**:
-  - Fetches and loads a specific CV directly by its ID.
+- **Consultant CV Provisioning (`medewerkerId=...` & `name=...`)**:
+  - Fetches the CV of a specific consultant using their employee ID.
+  - Automatically provisions a new CV for the consultant if they do not already have one.
+- **Direct Consultant CV Load (`id=...` & `name=...`)**:
+  - Fetches and loads a specific CV directly by its ID (e.g., `/cv?id=1&name=Peter%20Puk`).
+  - The `name` parameter is used to correctly display the consultant's name in the UI.
   - Populates the reactive form with the profile, education, competencies, experience (`ervaring`), and skill matrix categories.
 
 ### 2.2 Skill Matrix Form Management
