@@ -85,7 +85,37 @@ export class Cv {
     });
 
     this.route.queryParams.subscribe(params => {
-      if (params['isOwn']) {
+      if (params['name']) {
+        this.consultantName = params['name'];
+      }
+
+      if (params['medewerkerId']) {
+        this.medewerkerId = params['medewerkerId'];
+        this.isBusy = true;
+        this.api.getMedewerker(this.medewerkerId!).subscribe({
+          next: (medewerker) => {
+            if (medewerker.orgineleCv) {
+               this.loadedCv = medewerker.orgineleCv;
+               this.patchCvForm(this.loadedCv);
+               this.showMessage(`Loaded CV for consultant.`);
+               this.isBusy = false;
+            } else {
+               this.showMessage('Creating a new CV for consultant.');
+               this.loadedCv = this.createDefaultCv(medewerker);
+               this.patchCvForm(this.loadedCv);
+               this.saveCurrentCv();
+            }
+          },
+          error: () => {
+            this.showMessage('Failed to load consultant details.');
+            this.isBusy = false;
+          }
+        });
+      } else if (params['id']) {
+        this.cvLookupId = Number(params['id']);
+        this.loadCvById();
+      } else {
+        // Default to loading own profile if no specific id is provided
         this.isOwnProfile = true;
         this.isBusy = true;
         this.api.getMijzelf().subscribe({
@@ -108,36 +138,6 @@ export class Cv {
             this.isBusy = false;
           }
         });
-      } else {
-        if (params['name']) {
-          this.consultantName = params['name'];
-        }
-        if (params['medewerkerId']) {
-          this.medewerkerId = params['medewerkerId'];
-          this.isBusy = true;
-          this.api.getMedewerker(this.medewerkerId!).subscribe({
-            next: (medewerker) => {
-              if (medewerker.orgineleCv) {
-                 this.loadedCv = medewerker.orgineleCv;
-                 this.patchCvForm(this.loadedCv);
-                 this.showMessage(`Loaded CV for consultant.`);
-                 this.isBusy = false;
-              } else {
-                 this.showMessage('Creating a new CV for consultant.');
-                 this.loadedCv = this.createDefaultCv(medewerker);
-                 this.patchCvForm(this.loadedCv);
-                 this.saveCurrentCv();
-              }
-            },
-            error: () => {
-              this.showMessage('Failed to load consultant details.');
-              this.isBusy = false;
-            }
-          });
-        } else if (params['id']) {
-          this.cvLookupId = Number(params['id']);
-          this.loadCvById();
-        }
       }
     });
   }

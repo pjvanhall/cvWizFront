@@ -103,10 +103,10 @@ describe('Cv Component', () => {
     jest.spyOn(mockRouter, 'navigate').mockResolvedValue(true);
   }
 
-  describe('Initialization (isOwn)', () => {
-    it('should load base matrix and own CV if isOwn is true', () => {
+  describe('Initialization (Default fallback)', () => {
+    it('should load base matrix and own CV if no params provided', () => {
       createComponent();
-      queryParamsSubject.next({ isOwn: 'true' });
+      queryParamsSubject.next({});
       fixture.detectChanges();
 
 
@@ -121,12 +121,12 @@ describe('Cv Component', () => {
       expect(mockSnackBar.open).toHaveBeenCalledWith('Loaded own CV.', 'Close', expect.any(Object));
     });
 
-    it('should create new CV if isOwn is true but no orgineleCv', () => {
+    it('should create new CV if no params provided but no orgineleCv', () => {
       mockApiService.getMijzelf.mockReturnValue(of({ ...mockMedewerkerWithoutCv }));
       mockApiService.updateMedewerker.mockReturnValue(of({ ...mockMedewerkerWithoutCv, orgineleCv: { id: 2, bestandsNaam: 'CV Jane Doe' } }));
       
       createComponent();
-      queryParamsSubject.next({ isOwn: 'true' });
+      queryParamsSubject.next({});
       fixture.detectChanges();
 
       expect(component.loadedCv?.bestandsNaam).toBe('CV Jane Doe');
@@ -137,7 +137,7 @@ describe('Cv Component', () => {
     it('should show error if getMijzelf fails', () => {
       mockApiService.getMijzelf.mockReturnValue(throwError(() => new Error('Err')));
       createComponent();
-      queryParamsSubject.next({ isOwn: 'true' });
+      queryParamsSubject.next({});
       fixture.detectChanges();
 
       expect(mockSnackBar.open).toHaveBeenCalledWith('Failed to load your profile.', 'Close', expect.any(Object));

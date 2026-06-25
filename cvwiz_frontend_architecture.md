@@ -46,3 +46,9 @@ The application enforces strict typing using TypeScript interfaces defined in `c
 * **Theme**: The project uses the `indigo-pink` pre-built Material theme.
 * **Typography & Icons**: Material Typography (Roboto font) is strictly enforced globally. Material Icons (`mat-icon`) are used for visual queues.
 * **Custom Styling (SCSS)**: Component-scoped custom styles focus purely on layout (e.g., CSS Grids, spacing) rather than theming, delegating UI responsibilities entirely to Material.
+
+### 6. Testing & Quality Assurance
+The application mandates strict quality controls using automated unit testing.
+* **Framework**: Uses **Jest** as the primary testing framework, replacing Karma/Jasmine for faster execution and better mocking capabilities.
+* **Coverage Requirements**: The project enforces a strict **>90% global unit test coverage** threshold via `husky` pre-push hooks. This ensures all core logic, edge cases, and error-handling pathways are thoroughly validated before code can be pushed to the repository.
+* **Functional Specifications**: The comprehensive unit test suites act as a living documentation of the application's business rules. These rules have been extracted into a dedicated document: [Functional Specifications](file:///c:/Code/CodeClan/CVWizard%20Application/Frontend/cvWizFront/cvwiz_functional_specifications.md).

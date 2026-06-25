@@ -57,7 +57,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.snackBar.open('Google Login successful', 'Close', { duration: 3000 });
             
             if (this.authService.getRoles().includes('ROLE_CONSULTANT') && this.authService.getRoles().length === 1) {
-              this.router.navigate(['/cv'], { queryParams: { isOwn: true } });
+              this.router.navigate(['/cv']);
             } else {
               this.router.navigate(['/medewerkers']);
             }
@@ -93,7 +93,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.snackBar.open('Login successful', 'Close', { duration: 3000 });
         
         if (this.authService.getRoles().includes('ROLE_CONSULTANT') && this.authService.getRoles().length === 1) {
-          this.router.navigate(['/cv'], { queryParams: { isOwn: true } });
+          this.router.navigate(['/cv']);
         } else {
           this.router.navigate(['/medewerkers']);
         }

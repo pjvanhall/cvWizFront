@@ -87,7 +87,7 @@ describe('LoginComponent', () => {
       
       component.login();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/cv'], { queryParams: { isOwn: true } });
+      expect(router.navigate).toHaveBeenCalledWith(['/cv']);
     });
 
     it('should show error snackbar on login failure', () => {
